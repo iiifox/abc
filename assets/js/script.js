@@ -212,21 +212,25 @@ function renderXyCards(timeBlocks) {
 
     // 渠道太多，按组分好
     const groups = {
-        qianbao: {
-            label: '钱包',
-            channels: ["普通", "加速", "超速", "极速", "秒拉", "钱包直拉"]
-        },
-        teshu: {
-            label: '特殊',
-            channels: ["怪额", "超怪"]
+        zidong: {
+            label: '钱包自动',
+            channels: ["钱包直拉"]
         },
         weixin: {
             label: '微信',
-            channels: ["微信速额", "微信点额", "微信小额", "微信固额", "微信通额"]
+            channels: ["微信通额", "微信点额", "微信固额", "微信小额", "微信速额"]
         },
         qb: {
-            label: '微信QB',
-            channels: ["微信单端", "微信扫码"]
+            label: '微信Q币',
+            channels: ["微信单端"]
+        },
+        ceshi: {
+            label: '试运营',
+            channels: ["扫码通额", "扫码固额", "扫码小额"]
+        },
+        tuoguan: {
+            label: '钱包托管',
+            channels: ["普通", "加速", "超速", "极速", "秒拉", "超怪", "怪额"]
         }
     };
 
@@ -368,10 +372,6 @@ function renderXynCards(timeBlocks) {
 
     // 渠道太多，按组分好
     const groups = {
-        tuoguan: {
-            label: '钱包托管',
-            channels: ["普通", "加速", "超速", "极速", "秒拉", "超怪", "怪额"]
-        },
         zidong: {
             label: '钱包自动',
             channels: ["钱包直拉"]
@@ -381,8 +381,16 @@ function renderXynCards(timeBlocks) {
             channels: ["微信通额", "微信点额", "微信固额", "微信小额", "微信速额"]
         },
         qb: {
-            label: '微信QB',
-            channels: ["微信单端", "微信扫码"]
+            label: '微信Q币',
+            channels: ["微信单端"]
+        },
+        ceshi: {
+            label: '试运营',
+            channels: ["扫码通额", "扫码固额", "扫码小额"]
+        },
+        tuoguan: {
+            label: '钱包托管',
+            channels: ["普通", "加速", "超速", "极速", "秒拉", "超怪", "怪额"]
         }
     };
 
