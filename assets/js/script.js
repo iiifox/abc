@@ -323,7 +323,7 @@ function renderXyCards(timeBlocks) {
 
 async function initCopyJsButton(profitParam, dateParam) {
     // 拼接带 profit date 的接口
-    let apiUrl = "/api/xyJsCode";
+    let apiUrl = "/api/jsCode";
     const queryParams = new URLSearchParams();
     queryParams.set('type', "xy");
     if (profitParam) queryParams.set('profit', profitParam);
@@ -586,9 +586,9 @@ function renderXyTimeTabs(timeBlocks) {
 
 async function initXyJsButton(profitParam, dateParam) {
     // 拼接带 profit date 的接口
-    let apiUrl = "/api/xynJsCode";
+    let apiUrl = "/api/jsCode";
     const queryParams = new URLSearchParams();
-    queryParams.set('type', "xy");
+    queryParams.set('type', "xyn");
     if (profitParam) queryParams.set('profit', profitParam);
     if (dateParam) queryParams.set('date', dateParam);
     const queryString = queryParams.toString();
