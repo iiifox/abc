@@ -40,7 +40,7 @@ export function buildRateConfigs(data) {
         timeRanges.push({start_time: startFull, end_time: endFull, rates: data[start]});
     }
 
-    // 返回 rateConfigs
+    // 返回rateConfigs
     return Object.entries(modeMap)
         .filter(([name]) => timeRanges.some(t => t.rates && t.rates[name] != null))
         .map(([name, speed_mode]) => ({
