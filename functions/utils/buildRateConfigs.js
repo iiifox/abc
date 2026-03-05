@@ -37,7 +37,7 @@ export function buildRateConfigs(data) {
                 return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}:59`;
             })()
             : "23:59:59";
-        timeRanges.push({start_time: startFull, end_time: endFull, rates: xy[start]});
+        timeRanges.push({start_time: startFull, end_time: endFull, rates: data[start]});
     }
 
     // 返回 rateConfigs
