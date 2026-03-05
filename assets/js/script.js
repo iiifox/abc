@@ -46,7 +46,7 @@ function renderXdCards(timeBlocks) {
             channels: ["渠道TA", "渠道TB"]
         },
         weixin: {
-            label: '微信',
+            label: '微信点券',
             channels: ["渠道VA", "VB微信10起", "VC微信50", "VD100", "VE200"]
         }
     };
@@ -213,15 +213,15 @@ function renderXyCards(timeBlocks) {
     // 渠道太多，按组分好
     const groups = {
         qianbao: {
-            label: '钱包',
+            label: '钱包整百',
             channels: ["普通", "加速", "超速", "极速", "秒拉", "钱包直拉"]
         },
         teshu: {
-            label: '特殊',
+            label: '钱包特殊',
             channels: [ "超怪", "怪额"]
         },
         weixin: {
-            label: '微信',
+            label: '微信点券',
             channels: ["微信通额", "微信点额", "微信固额", "微信小额", "微信速额"]
         },
         qb: {
