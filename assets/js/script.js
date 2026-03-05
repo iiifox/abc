@@ -38,11 +38,11 @@ function renderXdCards(timeBlocks) {
     // 渠道太多，按组分好
     const groups = {
         qianbao: {
-            label: '钱包',
+            label: '钱包整百',
             channels: ["渠道A", "渠道B", "渠道C", "渠道D", "渠道E", "渠道F", "渠道H（低价）", "Z1000"]
         },
         teshu: {
-            label: '特殊',
+            label: '钱包特殊',
             channels: ["渠道TA", "渠道TB"]
         },
         weixin: {
