@@ -45,7 +45,9 @@ export async function onRequest({request}) {
             "微信小额": "xe",
             "微信点额": "de",
             "微信速额": "se",
-            "微信扫码": "qr"
+            "扫码通额": "qr",
+            "扫码固额": "sg",
+            "扫码小额": "sx"
         };
 
         // 生成时间分段
