@@ -325,10 +325,11 @@ async function initCopyJsButton(profitParam, dateParam) {
     // 拼接带 profit date 的接口
     let apiUrl = "/api/xyJsCode";
     const queryParams = new URLSearchParams();
+    queryParams.set('type', "xy");
     if (profitParam) queryParams.set('profit', profitParam);
     if (dateParam) queryParams.set('date', dateParam);
     const queryString = queryParams.toString();
-    if (queryString) apiUrl += `?${queryString}`;
+    apiUrl += `?${queryString}`;
     // 请求
     const xyText = await fetch(apiUrl).then(r => r.text());
 
@@ -587,10 +588,11 @@ async function initXyJsButton(profitParam, dateParam) {
     // 拼接带 profit date 的接口
     let apiUrl = "/api/xynJsCode";
     const queryParams = new URLSearchParams();
+    queryParams.set('type', "xy");
     if (profitParam) queryParams.set('profit', profitParam);
     if (dateParam) queryParams.set('date', dateParam);
     const queryString = queryParams.toString();
-    if (queryString) apiUrl += `?${queryString}`;
+    apiUrl += `?${queryString}`;
     // 请求
     const xynText = await fetch(apiUrl).then(r => r.text());
 
