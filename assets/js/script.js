@@ -367,13 +367,13 @@ function renderXynCards(timeBlocks) {
 
     // 渠道太多，按组分好
     const groups = {
-        qianbao: {
-            label: '钱包',
-            channels: ["普通", "加速", "超速", "极速", "秒拉", "钱包直拉"]
+        tuoguan: {
+            label: '钱包托管',
+            channels: ["普通", "加速", "超速", "极速", "秒拉", "超怪", "怪额"]
         },
-        teshu: {
-            label: '特殊',
-            channels: ["超怪", "怪额"]
+        zidong: {
+            label: '钱包自动',
+            channels: ["钱包直拉"]
         },
         weixin: {
             label: '微信',
