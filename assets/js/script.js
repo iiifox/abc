@@ -222,7 +222,7 @@ function renderXyCards(timeBlocks) {
         },
         weixin: {
             label: '微信点券',
-            channels: ["微信通额", "微信点额", "微信固额", "微信小额", "微信速额"]
+            channels: ["微信速额", "微信点额", "微信小额", "微信固额", "微信通额"]
         },
         qb: {
             label: '微信Q币',
