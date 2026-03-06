@@ -93,21 +93,23 @@ function renderXdCards(timeBlocks) {
         clientLink.href = systemHrefs.xdClient;
         clientLink.target = '_blank';
         clientLink.textContent = systemHrefs.xdClient;
-        // 🔴 新增：创建切换按钮容器并插入标题
-        const switchContainer = document.createElement('div');
-        switchContainer.className = 'switch-panel-container';
-        switchContainer.id = 'switchPanelContainer';
-        const switchBtn = document.createElement('button');
-        switchBtn.className = 'switch-btn';
-        switchBtn.id = 'switchPanelBtn';
-        switchBtn.textContent = currentPanelType === 'xd' ? '★ 切换为星悦' : '⭐ 切换为小刀';
-        switchContainer.appendChild(switchBtn);
+        // 🔴 创建切换按钮容器并插入标题
+        if (index === 0) {
+            const switchContainer = document.createElement('div');
+            switchContainer.className = 'switch-panel-container';
+            switchContainer.id = 'switchPanelContainer';
+            const switchBtn = document.createElement('button');
+            switchBtn.className = 'switch-btn';
+            switchBtn.id = 'switchPanelBtn';
+            switchBtn.textContent = currentPanelType === 'xd' ? '★ 切换为星悦' : '⭐ 切换为小刀';
+            switchContainer.appendChild(switchBtn);
+            timeTitle.appendChild(switchContainer); // 🔴 插入按钮
+        }
 
         // 组装标题
         timeTitle.appendChild(titleText);
         timeTitle.appendChild(webLink);
         timeTitle.appendChild(clientLink);
-        timeTitle.appendChild(switchContainer); // 🔴 插入按钮
         slide.appendChild(timeTitle);
 
         // 渠道分组进行渲染
