@@ -65,6 +65,9 @@
 }
 
 /* 不同颜色 */
+.fab-red {
+    background: #e74c3c;
+}
 .fab-blue {
     background: #1976d2;
 }
@@ -74,8 +77,8 @@
 .fab-yellow {
     background: #ffe60f;
 }
-.fab-red {
-    background: #e74c3c;
+.fab-azure {
+    background: #f0ffff;
 }
 .fab-orange {
     background: #f5900c;
