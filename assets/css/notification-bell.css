@@ -1,7 +1,6 @@
 .notification-bell-container {
     position: relative;
     cursor: pointer;
-    font-size: 20px;
 }
 
 /* 红点 */
@@ -16,51 +15,27 @@
     box-shadow: 0 0 0 2px white;
 }
 
-/* 公告框 */
 .notice-box {
     display: none;
-    position: absolute;
-    top: 45px;
-    left: 50%;
-    transform: translateX(-50%);
+    position: absolute; /* 相对于 notification-bell-container 定位 */
+    top: 50px; /* 顶部对齐容器 */
+    left: 50%; /* 容器水平居中 */
+    transform: translateX(-50%); /* 居中 */
     background: #fff;
     padding: 16px;
     border-radius: 10px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     font-size: 14px;
     z-index: 9999;
-
     width: max-content;
-    min-width: 240px;
-    max-width: 60vw;
-    max-height: 60vh;
-
+    max-width: 62vw;
+    max-height: 62vh;
     overflow-y: auto;
     white-space: pre-wrap;
-
-    opacity: 0;
-    transition: opacity .2s;
+    text-align: left;
 }
 
-/* 气泡箭头 */
-.notice-arrow {
-    position: absolute;
-    top: -8px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 0;
-    border-left: 8px solid transparent;
-    border-right: 8px solid transparent;
-    border-bottom: 8px solid white;
-}
-
-.notice-box.show {
-    display: block;
-    opacity: 1;
-}
-
-/* 滚动条 */
+/* 滚动条样式（可选美化） */
 .notice-box::-webkit-scrollbar {
     width: 6px;
 }
@@ -68,4 +43,13 @@
 .notice-box::-webkit-scrollbar-thumb {
     background: #ccc;
     border-radius: 3px;
+}
+
+.notice-box::-webkit-scrollbar-thumb:hover {
+    background: #999;
+}
+
+
+.notice-box.show {
+    display: block;
 }
