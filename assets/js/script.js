@@ -2,10 +2,10 @@
 let systemHrefs = {};
 
 // ========== 面板切换状态 ==========
-let currentPanelType = 'xd'; // 'xd' 或 'xy'
+let currentXdPanelType = 'xd'; // 'xd' 或 'xy'
 
 // ========== 时间标签选中索引（核心新增） ==========
-let activeTimeTabIndex = -1; // 记录当前选中的时间标签索引，-1=未初始化
+let activeXdTabIndex = -1; // 记录当前选中的时间标签索引，-1=未初始化
 
 // 获取系统链接（只请求一次）
 async function fetchSystemHrefs() {
@@ -19,10 +19,150 @@ async function fetchSystemHrefs() {
     }
 }
 
+
+// 重构：可复用的标签渲染函数（支持切换面板时更新）
+function renderXdTabs(timeBlocks) {
+    const tabsContainer = document.getElementById('xd-tabs');
+    if (!tabsContainer) return;
+
+    // 清空旧内容
+    tabsContainer.innerHTML = '';
+
+    // 如果只有一个时间块，隐藏标签容器
+    if (!timeBlocks || timeBlocks.length <= 1) {
+        tabsContainer.style.display = 'none';
+        return;
+    }
+
+    // 显示标签容器并创建 tabs
+    tabsContainer.style.display = '';
+    timeBlocks.forEach((block, index) => {
+        const tab = document.createElement('div');
+        tab.className = `rebate-tab ${index === timeBlocks.length - 1 ? 'active' : ''}`;
+        tab.textContent = block.time;
+        tab.dataset.time = block.time;
+
+        tab.addEventListener('click', () => {
+            // 核心新增：记录当前点击的索引
+            activeXdTabIndex = index;
+
+            // 👉 关键修复：获取当前面板的 slides 容器（不再硬编码）
+            const rebateSlides = document.querySelectorAll('#xd-panel .rebate-slide');
+            const rebateSlide = rebateSlides[index];
+            if (rebateSlide) {
+                const rebateContainer = document.querySelector('#xd-panel .rebate-slides');
+                if (rebateContainer) rebateContainer.scrollTo({
+                    left: rebateSlide.offsetLeft,
+                    behavior: 'smooth'
+                });
+                else rebateSlide.scrollIntoView({behavior: 'smooth'});
+            }
+            // 更新标签高亮
+            tabsContainer.querySelectorAll('.rebate-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+        });
+
+        tabsContainer.appendChild(tab);
+    });
+
+    // 重新绑定滚动监听（先移除旧监听，避免重复）
+    const rebateContainer = document.querySelector('#xd-panel .rebate-slides');
+    // 移除旧监听（通过命名函数实现）
+    if (rebateContainer._tabScrollHandler) {
+        rebateContainer.removeEventListener('scroll', rebateContainer._tabScrollHandler);
+    }
+
+    // 定义滚动监听函数并挂载到容器上（便于移除）
+    rebateContainer._tabScrollHandler = function () {
+        let tOut;
+        return () => {
+            if (tOut) clearTimeout(tOut);
+            tOut = setTimeout(() => {
+                const slides = rebateContainer.querySelectorAll('.rebate-slide');
+                if (!slides.length) return;
+                const center = rebateContainer.scrollLeft + rebateContainer.clientWidth / 2;
+                let bestIdx = 0;
+                let bestDist = Infinity;
+                slides.forEach((s, i) => {
+                    const sCenter = s.offsetLeft + s.offsetWidth / 2;
+                    const d = Math.abs(sCenter - center);
+                    if (d < bestDist) {
+                        bestDist = d;
+                        bestIdx = i;
+                    }
+                });
+                const tabs = tabsContainer.querySelectorAll('.rebate-tab');
+                tabs.forEach(t => t.classList.remove('active'));
+                if (tabs[bestIdx]) {
+                    tabs[bestIdx].classList.add('active');
+                    // 核心新增：滚动时更新选中索引
+                    activeXdTabIndex = bestIdx;
+                }
+            }, 50);
+        };
+    }();
+
+    // 绑定新的滚动监听
+    rebateContainer.addEventListener('scroll', rebateContainer._tabScrollHandler);
+
+    // 默认选中时间块（首次选最后一个，切换后选记录的索引）
+    setTimeout(() => {
+        const tabs = tabsContainer.querySelectorAll('.rebate-tab');
+        // 首次初始化：选最后一个并记录索引
+        if (activeXdTabIndex === -1) {
+            activeXdTabIndex = tabs.length - 1;
+        }
+        // 优先选记录的索引，兜底选最后一个
+        const targetTab = tabs[activeXdTabIndex] || tabs[tabs.length - 1];
+        if (targetTab) {
+            targetTab.click();
+        }
+    }, 120);
+}
+
+function initXdPanelSwitch() {
+    // 改为事件委托，监听父容器点击，避免重复绑定
+    const panel = document.getElementById('xd-panel');
+    panel.addEventListener('click', (e) => {
+        if (!e.target.matches('#switchPanelBtn')) return;
+
+        const switchBtn = e.target;
+        const copyBtn = document.getElementById('xdBtn');
+        const slides = panel.querySelector('.rebate-slides');
+
+        if (currentXdPanelType === 'xd') {
+            // 切换到星悦
+            currentXdPanelType = 'xy';
+            switchBtn.textContent = '⭐ 切换为小刀';
+            copyBtn.textContent = '复制费率代码';
+            slides.innerHTML = '';
+            renderXyCards(window.discountData.xyTimeBlocks);
+        } else {
+            // 切换到小刀
+            currentXdPanelType = 'xd';
+            switchBtn.textContent = '★ 切换为星悦';
+            copyBtn.textContent = '复制费率';
+            slides.innerHTML = '';
+            renderXdCards(window.discountData.xdTimeBlocks);
+        }
+
+        slides.scrollLeft = 0;
+        // 核心修改：根据记录的索引选中对应标签
+        const tabsContainer = document.getElementById('xd-tabs');
+        const tabs = tabsContainer.querySelectorAll('.rebate-tab');
+        // 用记录的索引，无则选最后一个
+        const targetIndex = activeXdTabIndex >= 0 ? activeXdTabIndex : tabs.length - 1;
+        if (tabs[targetIndex]) {
+            tabs[targetIndex].click();
+        }
+    });
+}
+
+
 // ========== 小刀 ==========
 function renderXdCards(timeBlocks) {
     // 只有当前面板是 'xd' 时才渲染
-    if (currentPanelType !== 'xd') return;
+    if (currentXdPanelType !== 'xd') return;
 
     const panel = document.getElementById('xd-panel');
     const container = panel.querySelector('.rebate-slides');
@@ -52,20 +192,20 @@ function renderXdCards(timeBlocks) {
     };
 
     const dataTooltips = {
-        "渠道A": "100-2000整百", 
-        "渠道B": "100-2000整百", 
-        "渠道C": "100-2000整百", 
+        "渠道A": "100-2000整百",
+        "渠道B": "100-2000整百",
+        "渠道C": "100-2000整百",
         "渠道D": "100-2000整百",
-        "渠道E": "100-2000整百", 
-        "渠道F": "100-2000整百", 
-        "渠道H（低价）": "100-2000整百", 
+        "渠道E": "100-2000整百",
+        "渠道F": "100-2000整百",
+        "渠道H（低价）": "100-2000整百",
         "Z1000": "固定1000的快速通道",
-        "渠道TA": "328/348/648固定", 
-        "渠道TB": "328/348/648固定", 
-        "渠道VA": "100-2000整百", 
-        "VB微信10起": "10/20/30居多", 
-        "VC微信50": "50为主", 
-        "VD100": "100为主", 
+        "渠道TA": "328/348/648固定",
+        "渠道TB": "328/348/648固定",
+        "渠道VA": "100-2000整百",
+        "VB微信10起": "10/20/30居多",
+        "VC微信50": "50为主",
+        "VD100": "100为主",
         "VE200": "100-2000整百"
     };
 
@@ -101,7 +241,7 @@ function renderXdCards(timeBlocks) {
             const switchBtn = document.createElement('button');
             switchBtn.className = 'switch-btn';
             switchBtn.id = 'switchPanelBtn';
-            switchBtn.textContent = currentPanelType === 'xd' ? '★ 切换为星悦' : '⭐ 切换为小刀';
+            switchBtn.textContent = currentXdPanelType === 'xd' ? '★ 切换为星悦' : '⭐ 切换为小刀';
             switchContainer.appendChild(switchBtn);
             timeTitle.appendChild(switchContainer); // 🔴 插入按钮
         }
@@ -150,7 +290,8 @@ function renderXdCards(timeBlocks) {
 
                 if (dataTooltips[channelName]) {
                     channelItem.setAttribute('data-tooltip', dataTooltips[channelName]);
-                };
+                }
+                ;
 
                 const discountSpan = document.createElement('span');
                 discountSpan.className = 'channel-discount';
@@ -180,7 +321,7 @@ function initCopyRateButton(templateData) {
 
     copyBtn.addEventListener('click', () => {
         // 根据当前面板类型决定复制内容
-        if (currentPanelType === 'xd') {
+        if (currentXdPanelType === 'xd') {
             if (!templateData) {
                 showToast('无可用费率数据（xd.template不存在）', true, 'xd-toast');
                 return;
@@ -199,7 +340,7 @@ function initCopyRateButton(templateData) {
 // ========== 星悦 ==========
 function renderXyCards(timeBlocks) {
     // 只有当前面板是 'xy' 时才渲染
-    if (currentPanelType !== 'xy') return;
+    if (currentXdPanelType !== 'xy') return;
 
     const panel = document.getElementById('xd-panel');
     const container = panel.querySelector('.rebate-slides');
@@ -220,7 +361,7 @@ function renderXyCards(timeBlocks) {
         },
         teshu: {
             label: '钱包特殊',
-            channels: [ "超怪", "怪额"]
+            channels: ["超怪", "怪额"]
         },
         weixin: {
             label: '微信点券',
@@ -258,7 +399,7 @@ function renderXyCards(timeBlocks) {
         const switchBtn = document.createElement('button');
         switchBtn.className = 'switch-btn';
         switchBtn.id = 'switchPanelBtn';
-        switchBtn.textContent = currentPanelType === 'xy' ? '⭐ 切换为小刀' : '★ 切换为星悦';
+        switchBtn.textContent = currentXdPanelType === 'xy' ? '⭐ 切换为小刀' : '★ 切换为星悦';
         switchContainer.appendChild(switchBtn);
 
         timeTitle.appendChild(titleText);
@@ -340,7 +481,7 @@ async function initCopyJsButton(profitParam, dateParam) {
 
     // 修改原始监听器，使其同时支持两种复制
     copyBtn.addEventListener('click', () => {
-        if (currentPanelType === 'xy') {
+        if (currentXdPanelType === 'xy') {
             if (!xyText) {
                 showToast('无可用费率数据', true, 'xd-toast');
                 return;
@@ -385,11 +526,11 @@ function renderXynCards(timeBlocks) {
     };
 
     const dataTooltips = {
-        "微信点额": "10-99随机",
-        "微信小额": "30-99随机",
+        "微信点额": "10-99随机",
+        "微信小额": "30-99随机",
         "微信固额": "30/50/100固定",
         "微信通额": "100-1000整百",
-        "微信速额": "200-1000整百",
+        "微信速额": "200-1000整百",
         "钱包直拉": "100-2000整百",
         "微信单端": "只能挂Q币的通道",
         "扫码通额": "可以挂点券以及Q币"
@@ -475,7 +616,8 @@ function renderXynCards(timeBlocks) {
 
                 if (dataTooltips[channelName]) {
                     channelItem.setAttribute('data-tooltip', dataTooltips[channelName]);
-                };
+                }
+                ;
 
                 const discountSpan = document.createElement('span');
                 discountSpan.className = 'channel-discount';
@@ -668,144 +810,6 @@ function showToast(message, isError = false, containerId = 'xd-toast') {
     setTimeout(() => notification.classList.remove('show'), 3000);
 }
 
-// 重构：可复用的标签渲染函数（支持切换面板时更新）
-function renderTimeTabs(timeBlocks) {
-    const tabsContainer = document.getElementById('xd-tabs');
-    if (!tabsContainer) return;
-
-    // 清空旧内容
-    tabsContainer.innerHTML = '';
-
-    // 如果只有一个时间块，隐藏标签容器
-    if (!timeBlocks || timeBlocks.length <= 1) {
-        tabsContainer.style.display = 'none';
-        return;
-    }
-
-    // 显示标签容器并创建 tabs
-    tabsContainer.style.display = '';
-    timeBlocks.forEach((block, index) => {
-        const tab = document.createElement('div');
-        tab.className = `rebate-tab ${index === timeBlocks.length - 1 ? 'active' : ''}`;
-        tab.textContent = block.time;
-        tab.dataset.time = block.time;
-
-        tab.addEventListener('click', () => {
-            // 核心新增：记录当前点击的索引
-            activeTimeTabIndex = index;
-
-            // 👉 关键修复：获取当前面板的 slides 容器（不再硬编码）
-            const rebateSlides = document.querySelectorAll('#xd-panel .rebate-slide');
-            const rebateSlide = rebateSlides[index];
-            if (rebateSlide) {
-                const rebateContainer = document.querySelector('#xd-panel .rebate-slides');
-                if (rebateContainer) rebateContainer.scrollTo({
-                    left: rebateSlide.offsetLeft,
-                    behavior: 'smooth'
-                });
-                else rebateSlide.scrollIntoView({behavior: 'smooth'});
-            }
-            // 更新标签高亮
-            tabsContainer.querySelectorAll('.rebate-tab').forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
-        });
-
-        tabsContainer.appendChild(tab);
-    });
-
-    // 重新绑定滚动监听（先移除旧监听，避免重复）
-    const rebateContainer = document.querySelector('#xd-panel .rebate-slides');
-    // 移除旧监听（通过命名函数实现）
-    if (rebateContainer._tabScrollHandler) {
-        rebateContainer.removeEventListener('scroll', rebateContainer._tabScrollHandler);
-    }
-
-    // 定义滚动监听函数并挂载到容器上（便于移除）
-    rebateContainer._tabScrollHandler = function () {
-        let tOut;
-        return () => {
-            if (tOut) clearTimeout(tOut);
-            tOut = setTimeout(() => {
-                const slides = rebateContainer.querySelectorAll('.rebate-slide');
-                if (!slides.length) return;
-                const center = rebateContainer.scrollLeft + rebateContainer.clientWidth / 2;
-                let bestIdx = 0;
-                let bestDist = Infinity;
-                slides.forEach((s, i) => {
-                    const sCenter = s.offsetLeft + s.offsetWidth / 2;
-                    const d = Math.abs(sCenter - center);
-                    if (d < bestDist) {
-                        bestDist = d;
-                        bestIdx = i;
-                    }
-                });
-                const tabs = tabsContainer.querySelectorAll('.rebate-tab');
-                tabs.forEach(t => t.classList.remove('active'));
-                if (tabs[bestIdx]) {
-                    tabs[bestIdx].classList.add('active');
-                    // 核心新增：滚动时更新选中索引
-                    activeTimeTabIndex = bestIdx;
-                }
-            }, 50);
-        };
-    }();
-
-    // 绑定新的滚动监听
-    rebateContainer.addEventListener('scroll', rebateContainer._tabScrollHandler);
-
-    // 默认选中时间块（首次选最后一个，切换后选记录的索引）
-    setTimeout(() => {
-        const tabs = tabsContainer.querySelectorAll('.rebate-tab');
-        // 首次初始化：选最后一个并记录索引
-        if (activeTimeTabIndex === -1) {
-            activeTimeTabIndex = tabs.length - 1;
-        }
-        // 优先选记录的索引，兜底选最后一个
-        const targetTab = tabs[activeTimeTabIndex] || tabs[tabs.length - 1];
-        if (targetTab) {
-            targetTab.click();
-        }
-    }, 120);
-}
-
-function initPanelSwitch() {
-    // 改为事件委托，监听父容器点击，避免重复绑定
-    const panel = document.getElementById('xd-panel');
-    panel.addEventListener('click', (e) => {
-        if (!e.target.matches('#switchPanelBtn')) return;
-
-        const switchBtn = e.target;
-        const copyBtn = document.getElementById('xdBtn');
-        const slides = panel.querySelector('.rebate-slides');
-
-        if (currentPanelType === 'xd') {
-            // 切换到星悦
-            currentPanelType = 'xy';
-            switchBtn.textContent = '⭐ 切换为小刀';
-            copyBtn.textContent = '复制费率代码';
-            slides.innerHTML = '';
-            renderXyCards(window.discountData.xyTimeBlocks);
-        } else {
-            // 切换到小刀
-            currentPanelType = 'xd';
-            switchBtn.textContent = '★ 切换为星悦';
-            copyBtn.textContent = '复制费率';
-            slides.innerHTML = '';
-            renderXdCards(window.discountData.xdTimeBlocks);
-        }
-
-        slides.scrollLeft = 0;
-        // 核心修改：根据记录的索引选中对应标签
-        const tabsContainer = document.getElementById('xd-tabs');
-        const tabs = tabsContainer.querySelectorAll('.rebate-tab');
-        // 用记录的索引，无则选最后一个
-        const targetIndex = activeTimeTabIndex >= 0 ? activeTimeTabIndex : tabs.length - 1;
-        if (tabs[targetIndex]) {
-            tabs[targetIndex].click();
-        }
-    });
-}
-
 // === 检测“明天”的折扣文件是否存在，存在则在右上角创建红色“明”FAB ===
 async function checkAndCreateTomorrowFab(baseDate) {
     const tomorrowStr = new Date(baseDate.getTime() + 1 * 24 * 3600_000).toISOString().slice(0, 10);
@@ -893,13 +897,13 @@ async function loadData() {
             xdTemplate: discountData.xd?.template
         };
         // 初始化面板切换按钮
-        initPanelSwitch();
+        initXdPanelSwitch();
         // 首次渲染小刀
-        currentPanelType = 'xd';
+        currentXdPanelType = 'xd';
         renderXdCards(xdTimeBlocks);
         initCopyRateButton(discountData.xd?.template);
         await initCopyJsButton(profitParam, dateParam);
-        renderTimeTabs(xdTimeBlocks);
+        renderXdTabs(xdTimeBlocks);
 
         // 渲染新的星悦数据
         const xynTimeBlocks = Object.entries(discountData.xyn || {})
