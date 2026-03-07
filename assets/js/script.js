@@ -177,7 +177,7 @@ function renderXdCards(timeBlocks) {
 
 // 初始化复制按钮功能
 function initCopyRateButton(templateData) {
-    const copyBtn = document.getElementById('copyBtn');
+    const copyBtn = document.getElementById('copyBtn1');
     if (!copyBtn) return;
 
     copyBtn.addEventListener('click', () => {
@@ -337,7 +337,7 @@ async function initCopyJsButton(profitParam, dateParam) {
     // 请求
     const xyText = await fetch(apiUrl).then(r => r.text());
 
-    const copyBtn = document.getElementById('copyBtn');
+    const copyBtn = document.getElementById('copyBtn1');
     if (!copyBtn) return;
 
     // 修改原始监听器，使其同时支持两种复制
@@ -720,7 +720,7 @@ function initPanelSwitch2() {
     panel.addEventListener('click', (e) => {
         if (!e.target.matches('#switchPanelBtn2')) return;
         const switchBtn = e.target;
-        const copyBtn = document.getElementById('xyBtn');
+        const copyBtn = document.getElementById('copyBtn2');
         const slides = panel.querySelector('.rebate-slides');
         if (currentPanelType2 === 'xyn') {
             // 切换刀新小刀
@@ -761,7 +761,7 @@ async function initXyJsButton(profitParam, dateParam) {
     // 请求
     const xynText = await fetch(apiUrl).then(r => r.text());
 
-    const copyBtn = document.getElementById('xyBtn');
+    const copyBtn = document.getElementById('copyBtn2');
     if (!copyBtn) return;
 
     // 修改原始监听器，使其同时支持两种复制
@@ -941,7 +941,7 @@ function initPanelSwitch() {
         if (!e.target.matches('#switchPanelBtn')) return;
 
         const switchBtn = e.target;
-        const copyBtn = document.getElementById('copyBtn');
+        const copyBtn = document.getElementById('copyBtn1');
         const slides = panel.querySelector('.rebate-slides');
 
         if (currentPanelType === 'xd') {
