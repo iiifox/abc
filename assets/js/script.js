@@ -640,7 +640,7 @@ function renderXynCards(timeBlocks) {
     const groups = {
         zidong: {
             label: '自动点券',
-            channels: ["微信点额", "微信小额", "微信固额", "微信通额", "微信速额", "钱包直拉"]
+            channels: ["微信通额", "微信速额", "微信固额", "微信小额", "微信点额", "钱包直拉"]
         },
         qb: {
             label: '微信Q币',
