@@ -50,7 +50,7 @@ function parseXd(lines, profit) {
             }
         }
     }
-    
+
     const channelsOrder = Array.from(channelsFirstIndex.keys());
 
     // 补全缺失值（按时间填充）
@@ -90,11 +90,31 @@ function parseXy(lines, profit, xd) {
     const timeOrder = [];
     let currentTimeKey = '';
 
-    const specialMap = {"直拉": "钱包直拉", "单端": "微信单端", "小额": "微信小额", "点额": "微信点额", "速额": "微信速额", "固额": "微信固额"};
+    const specialMap = {
+        "直拉": "钱包直拉",
+        "单端": "微信单端",
+        "小额": "微信小额",
+        "点额": "微信点额",
+        "速额": "微信速额",
+        "固额": "微信固额"
+    };
     const channelsFirstIndex = new Map();
 
-    const xdToXy = {"渠道A": "普通", "渠道B": "加速", "渠道C": "超速", "渠道D": "极速", "渠道E": "秒拉", "渠道F": "钱包直拉", "渠道TA": "怪额", "渠道TB": "超怪",
-                   "渠道VA": "微信速额", "VB微信10起": "微信点额", "VC微信50": "微信小额", "VD100": "微信固额", "VE200": "微信通额"}
+    const xdToXy = {
+        "渠道A": "普通",
+        "渠道B": "加速",
+        "渠道C": "超速",
+        "渠道D": "极速",
+        "渠道E": "秒拉",
+        "渠道F": "钱包直拉",
+        "渠道TA": "怪额",
+        "渠道TB": "超怪",
+        "渠道VA": "微信速额",
+        "VB微信10起": "微信点额",
+        "VC微信50": "微信小额",
+        "VD100": "微信固额",
+        "VE200": "微信通额"
+    }
 
     for (const line of lines) {
         // 时间匹配
@@ -140,7 +160,7 @@ function parseXy(lines, profit, xd) {
         });
         xy[time] = newObj;
     });
-    
+
     return xy;
 }
 
@@ -168,7 +188,7 @@ async function parseGbo(lines, request, profit) {
             discountMap.set(name, {price: discount, paths});
         });
     }
-    
+
     const gbo = Object.fromEntries(
         [...new Set([...Object.keys(channelConfig.channelMap), ...discountMap.keys()])]
             .filter(channel => discountMap.has(channel) && channelConfig.channelMap[channel])
@@ -184,7 +204,7 @@ function parseXyn(lines, profit) {
     const timeOrder = [];
     let currentTimeKey = '00:00';
 
-    const specialMap = {"直拉": "钱包直拉"};
+    const specialMap = {"直拉": "钱包直拉", "微信扫码": "扫码通额"};
     const channelsFirstIndex = new Map();
 
     for (const line of lines) {
@@ -229,15 +249,90 @@ function parseXyn(lines, profit) {
 }
 
 
+// ========== 解析新小刀折扣 ==========
+function parseXdn(lines, profit) {
+    const xdn = {};
+    const timeOrder = [];
+    let currentTimeKey = '00:00';
+
+    const specialMap = {
+        "低价": "钱包低价",
+        "普通": "钱包普通",
+        "加速": "钱包加速",
+        "超速": "钱包超速",
+        "极速": "钱包极速",
+        "直拉": "钱包直拉",
+        "秒拉": "钱包秒拉",
+        "超怪": "钱包超怪",
+        "怪额": "钱包怪额"
+    };
+    const channelsFirstIndex = new Map();
+
+    for (const line of lines) {
+        // 时间匹配
+        if (line.match(/^(\d{2}):(\d{2})$/)) {
+            currentTimeKey = line;
+            continue;
+        }
+        if (!(currentTimeKey in xdn)) {
+            xdn[currentTimeKey] = {};
+            timeOrder.push(currentTimeKey);
+        }
+
+        // 渠道行匹配
+        const m = line.match(/^(.*?)\s*(\d+)/);
+        if (m && currentTimeKey) {
+            let channel = m[1];
+            const matchedKey = Object.keys(specialMap).find(k => channel.includes(k));
+            if (matchedKey) channel = specialMap[matchedKey];
+            xdn[currentTimeKey][channel] = formatAndRound(m[2], profit);
+            if (!channelsFirstIndex.has(channel)) {
+                channelsFirstIndex.set(channel, timeOrder.indexOf(currentTimeKey));
+            }
+        }
+    }
+
+    // 补全缺失值（按时间填充）
+    const channelsOrder = Array.from(channelsFirstIndex.keys());
+    timeOrder.forEach((time, timeIndex) => {
+        const newObj = {};
+        channelsOrder.forEach(channel => {
+            if (timeIndex < channelsFirstIndex.get(channel)) {
+                newObj[channel] = 1;
+            } else {
+                newObj[channel] = xdn[time][channel] ?? xdn[timeOrder[timeIndex - 1]][channel];
+            }
+        });
+        xdn[time] = newObj;
+    });
+
+    // 生成 template（按渠道优先，时间次序），去除与上一个时间折扣相同的重复项
+    const templateItems = [];
+    channelsOrder.forEach(channel => {
+        let prevValue = undefined;
+        timeOrder.forEach(time => {
+            const value = xdn[time][channel];
+            if (value !== prevValue) {
+                templateItems.push(`${channel}${time}/${xdn[time][channel]}`);
+                prevValue = value;
+            }
+        });
+    });
+    xdn.template = templateItems.join('\n');
+
+    return xdn;
+}
+
+
 export async function onRequest({request}) {
     const profit = Number(new URL(request.url).searchParams.get("profit") || 0);
-    
+
     // 获取日期参数或默认今天（东八区）
     const dateParam = new URL(request.url).searchParams.get("date");
     const date = dateParam || new Date(Date.now() + 8 * 3600_000).toISOString().slice(0, 10);
     // 发起请求
     const resp = await fetch(new URL(`/discount/${date.replace(/-/g, '/')}.txt`, new URL(request.url).origin));
-    
+
     if (!resp.ok) return new Response(JSON.stringify({error: '数据源获取失败'}), {
         status: 502,
         headers: {'Content-Type': 'application/json'}
@@ -306,7 +401,9 @@ export async function onRequest({request}) {
     });
 
     let xynLines = []
+    let xdnLines = []
     const linens = (await respn.text()).split('\n').map(s => s.trim()).filter(Boolean);
+    let currentSystem2 = null
     for (const line of linens) {
         // 改价
         if (/^\d{4}开始/.test(line)) {
@@ -315,15 +412,44 @@ export async function onRequest({request}) {
             // 拆分小时和分钟，拼接冒号
             const hour = timeNum.slice(0, 2);
             const minute = timeNum.slice(2);
-            xynLines.push(`${hour}:${minute}`);
+            if (line.includes("星悦") || line.includes("小刀")) {
+                if (line.includes("星悦") && line.includes("小刀")) {
+                    currentSystem2 = "all";
+                    xynLines.push(`${hour}:${minute}`);
+                    xdnLines.push(`${hour}:${minute}`);
+                } else if (line.includes("星悦")) {
+                    currentSystem2 = "xyn";
+                    xynLines.push(`${hour}:${minute}`);
+                } else if (line.includes("小刀")) {
+                    currentSystem2 = "xdn";
+                    xdnLines.push(`${hour}:${minute}`);
+                }
+            }
         }
         // 过点或者空行之类的
-        if (line.includes("过点") || line.includes("星悦") || /^\s*$/.test(line)) {
+        if (line.includes("过点") || line.includes("—") || /^\s*$/.test(line)) {
             continue;
         }
+
+        if (line.startsWith("星悦")) {
+            currentSystem = "xyn"
+            continue;
+        }
+        if (line.startsWith("小刀")) {
+            currentSystem = "xdn"
+            continue;
+        }
+
         // 判断整行是否是「中文+空格+数字」格式，一行一个渠道报价
         if (/^[\u4e00-\u9fa5]+\s*\d+$/.test(line)) {
-            xynLines.push(line);
+            if (currentSystem2 === "all") {
+                xynLines.push(line);
+                xdnLines.push(line);
+            } else if (currentSystem2 === "xyn") {
+                xynLines.push(line);
+            } else if (currentSystem2 === "xdn") {
+                xdnLines.push(line);
+            }
         } else {
             // 不符合上述格式，先按空格拆分片段。遍历每个片段，处理成「中文 数字」后推入数组
             line.split(/\s+/).forEach(segment => {
@@ -331,12 +457,20 @@ export async function onRequest({request}) {
                 const match = segment.match(/([\u4e00-\u9fa5]+)(\d+)/);
                 if (match) {
                     const formatted = `${match[1]} ${match[2]}`;
-                    xynLines.push(formatted);
+                    if (currentSystem2 === "all") {
+                        xynLines.push(formatted);
+                        xdnLines.push(formatted);
+                    } else if (currentSystem2 === "xyn") {
+                        xynLines.push(formatted);
+                    } else if (currentSystem2 === "xdn") {
+                        xdnLines.push(formatted);
+                    }
                 }
             });
         }
     }
     const xyn = parseXyn(xynLines, profit);
+    const xdn = parseXdn(xdnLines, profit);
 
-    return new Response(JSON.stringify({ date, xd, xy, gbo, xyn}), {headers: {'Content-Type': 'application/json'}});
+    return new Response(JSON.stringify({date, xd, xy, gbo, xyn, xdn}), {headers: {'Content-Type': 'application/json'}});
 }
