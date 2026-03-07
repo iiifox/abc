@@ -3,9 +3,11 @@ let systemHrefs = {};
 
 // ========== 面板切换状态 ==========
 let currentXdPanelType = 'xd'; // 'xd' 或 'xy'
+let currentXynPanelType = 'xyn'; // 'xyn' 或 'xdn'
 
-// ========== 时间标签选中索引（核心新增） ==========
+// ========== 时间标签选中索引 ==========
 let activeXdTabIndex = -1; // 记录当前选中的时间标签索引，-1=未初始化
+let activeXynTabIndex = -1; // 记录当前选中的时间标签索引，-1=未初始化
 
 // 获取系统链接（只请求一次）
 async function fetchSystemHrefs() {
@@ -234,7 +236,7 @@ function renderXdCards(timeBlocks) {
         if (index === 0) {
             const switchContainer = document.createElement('div');
             switchContainer.className = 'switch-panel-container';
-            switchContainer.id = 'switchPanelContainer';
+            switchContainer.id = 'switchXdPanelContainer';
             const switchBtn = document.createElement('button');
             switchBtn.className = 'switch-btn';
             switchBtn.id = 'switchXdPanelBtn';
@@ -311,29 +313,6 @@ function renderXdCards(timeBlocks) {
     });
 }
 
-// 初始化复制按钮功能
-function initCopyRateButton(templateData) {
-    const copyBtn = document.getElementById('xdBtn');
-    if (!copyBtn) return;
-
-    copyBtn.addEventListener('click', () => {
-        // 根据当前面板类型决定复制内容
-        if (currentXdPanelType === 'xd') {
-            if (!templateData) {
-                showToast('无可用费率数据（xd.template不存在）', true, 'xd-toast');
-                return;
-            }
-            navigator.clipboard.writeText(templateData)
-                .then(() => showToast('费率已复制到剪贴板', false, 'xd-toast'))
-                .catch(err => {
-                    showToast('复制失败，请手动复制', true, 'xd-toast');
-                    console.error('复制失败:', err);
-                });
-        }
-    });
-}
-
-
 // ========== 星悦 ==========
 function renderXyCards(timeBlocks) {
     // 只有当前面板是 'xy' 时才渲染
@@ -393,7 +372,7 @@ function renderXyCards(timeBlocks) {
         if (index === 0) {
             const switchContainer = document.createElement('div');
             switchContainer.className = 'switch-panel-container';
-            switchContainer.id = 'switchPanelContainer';
+            switchContainer.id = 'switchXdPanelContainer';
             const switchBtn = document.createElement('button');
             switchBtn.className = 'switch-btn';
             switchBtn.id = 'switchXdPanelBtn';
@@ -463,24 +442,37 @@ function renderXyCards(timeBlocks) {
     });
 }
 
-async function initCopyJsButton(profitParam, dateParam) {
-    // 拼接带 profit date 的接口
-    let apiUrl = "/api/jsCode";
-    const queryParams = new URLSearchParams();
-    queryParams.set('type', "xy");
-    if (profitParam) queryParams.set('profit', profitParam);
-    if (dateParam) queryParams.set('date', dateParam);
-    const queryString = queryParams.toString();
-    apiUrl += `?${queryString}`;
-    // 请求
-    const xyText = await fetch(apiUrl).then(r => r.text());
-
+async function initXdCopyButton(templateData, profitParam, dateParam) {
     const copyBtn = document.getElementById('xdBtn');
     if (!copyBtn) return;
 
-    // 修改原始监听器，使其同时支持两种复制
-    copyBtn.addEventListener('click', () => {
-        if (currentXdPanelType === 'xy') {
+    if (currentXdPanelType === 'xd') {
+        copyBtn.addEventListener('click', () => {
+            if (!templateData) {
+                showToast('无可用费率数据（xd.template不存在）', true, 'xd-toast');
+                return;
+            }
+            navigator.clipboard.writeText(templateData)
+                .then(() => showToast('费率已复制到剪贴板', false, 'xd-toast'))
+                .catch(err => {
+                    showToast('复制失败，请手动复制', true, 'xd-toast');
+                    console.error('复制失败:', err);
+                });
+        });
+    } else {
+        // 拼接带 profit date 的接口
+        let apiUrl = "/api/jsCode";
+        const queryParams = new URLSearchParams();
+        queryParams.set('type', "xy");
+        if (profitParam) queryParams.set('profit', profitParam);
+        if (dateParam) queryParams.set('date', dateParam);
+        const queryString = queryParams.toString();
+        apiUrl += `?${queryString}`;
+        // 请求
+        const xyText = await fetch(apiUrl).then(r => r.text());
+
+        // 修改原始监听器，使其同时支持两种复制
+        copyBtn.addEventListener('click', () => {
             if (!xyText) {
                 showToast('无可用费率数据', true, 'xd-toast');
                 return;
@@ -491,44 +483,151 @@ async function initCopyJsButton(profitParam, dateParam) {
                     showToast('复制失败，请手动复制', true, 'xd-toast');
                     console.error('复制失败:', err);
                 });
+        });
+    }
+}
+
+
+// 可复用的新小刀星悦标签渲染函数（支持切换面板时更新）
+function renderXynTabs(timeBlocks) {
+    const tabsContainer = document.getElementById('xyn-tabs');
+    if (!tabsContainer) return;
+
+    // 清空旧内容
+    tabsContainer.innerHTML = '';
+
+    // 如果只有一个时间块，隐藏标签容器
+    if (!timeBlocks || timeBlocks.length <= 1) {
+        tabsContainer.style.display = 'none';
+        return;
+    }
+
+    // 显示标签容器并创建 tabs
+    tabsContainer.style.display = '';
+    timeBlocks.forEach((block, index) => {
+        const tab = document.createElement('div');
+        tab.className = `rebate-tab ${index === timeBlocks.length - 1 ? 'active' : ''}`;
+        tab.textContent = block.time;
+        tab.dataset.time = block.time;
+        tab.addEventListener('click', () => {
+            // 记录当前点击的索引
+            activeXynTabIndex = index;
+            // 获取当前面板的 slides 容器
+            const rebateSlides = document.querySelectorAll('#xyn-panel .rebate-slide');
+            const rebateSlide = rebateSlides[index];
+            if (rebateSlide) {
+                const rebateContainer = document.querySelector('#xyn-panel .rebate-slides');
+                if (rebateContainer) rebateContainer.scrollTo({
+                    left: rebateSlide.offsetLeft,
+                    behavior: 'smooth'
+                });
+                else rebateSlide.scrollIntoView({behavior: 'smooth'});
+            }
+            // 更新标签高亮
+            tabsContainer.querySelectorAll('.rebate-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+        });
+        tabsContainer.appendChild(tab);
+    });
+
+    // 重新绑定滚动监听（先移除旧监听，避免重复）
+    const rebateContainer = document.querySelector('#xyn-panel .rebate-slides');
+    // 移除旧监听（通过命名函数实现）
+    if (rebateContainer._tabScrollHandler) {
+        rebateContainer.removeEventListener('scroll', rebateContainer._tabScrollHandler);
+    }
+
+    // 定义滚动监听函数并挂载到容器上（便于移除）
+    rebateContainer._tabScrollHandler = function () {
+        let tOut;
+        return () => {
+            if (tOut) clearTimeout(tOut);
+            tOut = setTimeout(() => {
+                const slides = rebateContainer.querySelectorAll('.rebate-slide');
+                if (!slides.length) return;
+                const center = rebateContainer.scrollLeft + rebateContainer.clientWidth / 2;
+                let bestIdx = 0;
+                let bestDist = Infinity;
+                slides.forEach((s, i) => {
+                    const sCenter = s.offsetLeft + s.offsetWidth / 2;
+                    const d = Math.abs(sCenter - center);
+                    if (d < bestDist) {
+                        bestDist = d;
+                        bestIdx = i;
+                    }
+                });
+                const tabs = tabsContainer.querySelectorAll('.rebate-tab');
+                tabs.forEach(t => t.classList.remove('active'));
+                if (tabs[bestIdx]) {
+                    tabs[bestIdx].classList.add('active');
+                    // 核心新增：滚动时更新选中索引
+                    activeXynTabIndex = bestIdx;
+                }
+            }, 50);
+        };
+    }();
+
+    // 绑定新的滚动监听
+    rebateContainer.addEventListener('scroll', rebateContainer._tabScrollHandler);
+
+    // 默认选中时间块（首次选最后一个，切换后选记录的索引）
+    setTimeout(() => {
+        const tabs = tabsContainer.querySelectorAll('.rebate-tab');
+        // 首次初始化：选最后一个并记录索引
+        if (activeXynTabIndex === -1) {
+            activeXynTabIndex = tabs.length - 1;
+        }
+        // 优先选记录的索引，兜底选最后一个
+        const targetTab = tabs[activeXynTabIndex] || tabs[tabs.length - 1];
+        if (targetTab) {
+            targetTab.click();
+        }
+    }, 120);
+}
+
+function initXynPanelSwitch() {
+    // 改为事件委托，监听父容器点击，避免重复绑定
+    const panel = document.getElementById('xyn-panel');
+    panel.addEventListener('click', (e) => {
+        if (!e.target.matches('#switchXynPanelBtn')) return;
+
+        const switchBtn = e.target;
+        const copyBtn = document.getElementById('xynBtn');
+        const slides = panel.querySelector('.rebate-slides');
+
+        if (currentXynPanelType === 'xyn') {
+            // 切换到新小刀
+            currentXynPanelType = 'xdn';
+            switchBtn.textContent = '⭐ 切换为星悦';
+            copyBtn.textContent = '复制费率';
+            slides.innerHTML = '';
+            renderXdnCards(window.discountData.xdnTimeBlocks);
+        } else {
+            // 切换到新星悦
+            currentXynPanelType = 'xyn';
+            switchBtn.textContent = '★ 切换为小刀';
+            copyBtn.textContent = '复制费率代码';
+            slides.innerHTML = '';
+            renderXynCards(window.discountData.xynTimeBlocks);
+        }
+
+        slides.scrollLeft = 0;
+        // 核心修改：根据记录的索引选中对应标签
+        const tabsContainer = document.getElementById('xyn-tabs');
+        const tabs = tabsContainer.querySelectorAll('.rebate-tab');
+        // 用记录的索引，无则选最后一个
+        const targetIndex = activeXynTabIndex >= 0 ? activeXynTabIndex : tabs.length - 1;
+        if (tabs[targetIndex]) {
+            tabs[targetIndex].click();
         }
     });
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // ========== 新的星悦 ==========
 function renderXynCards(timeBlocks) {
+    if (currentXynPanelType !== 'xyn') return;
+
     const panel = document.getElementById('xyn-panel');
     const container = panel.querySelector('.rebate-slides');
 
@@ -601,6 +700,18 @@ function renderXynCards(timeBlocks) {
         zhuabaoLink.href = systemHrefs.xyZhuabao;
         zhuabaoLink.target = '_blank';
         zhuabaoLink.textContent = "抓包工具";
+        // 🔴 新增切换按钮
+        if (index === 0) {
+            const switchContainer = document.createElement('div');
+            switchContainer.className = 'switch-panel-container';
+            switchContainer.id = 'switchXynPanelContainer';
+            const switchBtn = document.createElement('button');
+            switchBtn.className = 'switch-btn';
+            switchBtn.id = 'switchXynPanelBtn';
+            switchBtn.textContent = currentXynPanelType === 'xdn' ? '⭐ 切换为新星悦' : '★ 切换为新小刀';
+            switchContainer.appendChild(switchBtn);
+            timeTitle.appendChild(switchContainer); // 🔴 插入按钮
+        }
         // 组装
         timeTitle.appendChild(titleText);
         timeTitle.appendChild(webLink);
@@ -648,7 +759,6 @@ function renderXynCards(timeBlocks) {
                 if (dataTooltips[channelName]) {
                     channelItem.setAttribute('data-tooltip', dataTooltips[channelName]);
                 }
-                ;
 
                 const discountSpan = document.createElement('span');
                 discountSpan.className = 'channel-discount';
@@ -671,120 +781,179 @@ function renderXynCards(timeBlocks) {
     });
 }
 
-// 标签渲染函数
-function renderXyTimeTabs(timeBlocks) {
-    const tabsContainer = document.getElementById('xy-tabs');
-    if (!tabsContainer) return;
+// ========== 新的小刀 ==========
+function renderXdnCards(timeBlocks) {
+    // 只有当前面板是 'xdn' 时才渲染
+    if (currentXynPanelType !== 'xdn') return;
 
-    // 清空旧内容
-    tabsContainer.innerHTML = '';
+    const panel = document.getElementById('xyn-panel');
+    const container = panel.querySelector('.rebate-slides');
 
-    // 如果只有一个时间块，隐藏标签容器
-    if (!timeBlocks || timeBlocks.length <= 1) {
-        tabsContainer.style.display = 'none';
+    // 清空容器
+    container.innerHTML = '';
+
+    if (!timeBlocks || timeBlocks.length === 0) {
+        container.innerHTML = '<p>暂无报价</p>';
         return;
     }
 
-    // 显示标签容器并创建 tabs
-    tabsContainer.style.display = '';
-    timeBlocks.forEach((block, index) => {
-        const tab = document.createElement('div');
-        tab.className = `rebate-tab ${index === timeBlocks.length - 1 ? 'active' : ''}`;
-        tab.textContent = block.time;
-        tab.dataset.time = block.time;
+    // 渠道太多，按组分好
+    const groups = {
+        qianbao: {
+            label: '钱包点券',
+            channels: ["钱包低价", "钱包普通", "钱包加速", "钱包超速", "钱包极速", "钱包直拉", "钱包秒拉", "钱包超怪", "钱包怪额"]
+        },
+        weixin: {
+            label: '微信点券',
+            channels: ["微信通额", "微信速额", "微信固额", "微信小额", "微信点额"]
+        }
+    };
 
-        tab.addEventListener('click', () => {
-            // 👉 关键修复：获取当前面板的 slides 容器（不再硬编码）
-            const rebateSlides = document.querySelectorAll('#xyn-panel .rebate-slide');
-            const rebateSlide = rebateSlides[index];
-            if (rebateSlide) {
-                const rebateContainer = document.querySelector('#xyn-panel .rebate-slides');
-                if (rebateContainer) rebateContainer.scrollTo({
-                    left: rebateSlide.offsetLeft,
-                    behavior: 'smooth'
-                });
-                else rebateSlide.scrollIntoView({behavior: 'smooth'});
-            }
-            // 更新标签高亮
-            tabsContainer.querySelectorAll('.rebate-tab').forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
+    // 存储每个渠道上一次的折扣值
+    const lastDiscountByChannel = {};
+
+    // === 渲染 折扣slide ===
+    timeBlocks.forEach((block, index) => {
+        // 创建时间块面板
+        const slide = document.createElement('div');
+        slide.className = 'rebate-slide';
+        slide.dataset.time = block.time;
+
+        const timeTitle = document.createElement('h2');
+        timeTitle.className = 'rebate-title';
+        // 创建文本节点
+        const titleText = document.createTextNode("新小刀");
+        // 创建链接
+        const webLink = document.createElement('a');
+        webLink.href = systemHrefs.xdnWeb;
+        webLink.target = '_blank';
+        webLink.textContent = '网页入口';
+        // 最新客户端下载
+        const clientLink = document.createElement("a");
+        clientLink.href = systemHrefs.xdnClient;
+        clientLink.target = '_blank';
+        clientLink.textContent = systemHrefs.xdnClient;
+        // 🔴 创建切换按钮容器并插入标题
+        if (index === 0) {
+            const switchContainer = document.createElement('div');
+            switchContainer.className = 'switch-panel-container';
+            switchContainer.id = 'switchXynPanelContainer';
+            const switchBtn = document.createElement('button');
+            switchBtn.className = 'switch-btn';
+            switchBtn.id = 'switchXynPanelBtn';
+            switchBtn.textContent = currentXynPanelType === 'xyn' ? '★ 切换为新小刀' : '⭐ 切换为新星悦';
+            switchContainer.appendChild(switchBtn);
+            timeTitle.appendChild(switchContainer); // 🔴 插入按钮
+        }
+
+        // 组装标题
+        timeTitle.appendChild(titleText);
+        timeTitle.appendChild(webLink);
+        timeTitle.appendChild(clientLink);
+        slide.appendChild(timeTitle);
+
+        // 渠道分组进行渲染
+        Object.values(groups).forEach(groupInfo => {
+            const group = document.createElement('div');
+            group.className = 'rebate-group';
+
+            // 渠道标签
+            const channelSpan = document.createElement('span');
+            channelSpan.className = 'channel-label';
+            channelSpan.textContent = groupInfo.label;
+            group.appendChild(channelSpan);
+
+            // 渠道列表
+            const channelList = document.createElement('div');
+            channelList.className = 'channel-list';
+            // 渲染标签当中每个渠道（渠道列表）
+            groupInfo.channels.forEach(channelName => {
+                const item = block.rates.find(i => i.channel === channelName);
+                if (!item) return;
+
+                // 颜色判定（默认黑色 涨价红色 降价绿色）
+                let color = 'black';
+                if (index > 0) {
+                    const last = lastDiscountByChannel[channelName];
+                    if (last !== undefined) {
+                        if (item.discount > last) color = 'red';
+                        else if (item.discount < last) color = 'green';
+                    }
+                }
+
+                const channelItem = document.createElement('div');
+                channelItem.className = 'channel-item';
+
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'channel-name';
+                nameSpan.textContent = channelName;
+
+                const discountSpan = document.createElement('span');
+                discountSpan.className = 'channel-discount';
+                discountSpan.textContent = item.discount;
+                discountSpan.style.color = color;
+
+                channelItem.appendChild(nameSpan);
+                channelItem.appendChild(discountSpan);
+                channelList.appendChild(channelItem);
+
+                // 更新当前渠道的 last discount
+                lastDiscountByChannel[channelName] = item.discount;
+            });
+
+            group.appendChild(channelList);
+            slide.appendChild(group);
         });
 
-        tabsContainer.appendChild(tab);
+        container.appendChild(slide);
     });
-
-    // 重新绑定滚动监听（先移除旧监听，避免重复）
-    const rebateContainer = document.querySelector('#xyn-panel .rebate-slides');
-    // 移除旧监听（通过命名函数实现）
-    if (rebateContainer._tabScrollHandler) {
-        rebateContainer.removeEventListener('scroll', rebateContainer._tabScrollHandler);
-    }
-
-    // 定义滚动监听函数并挂载到容器上（便于移除）
-    rebateContainer._tabScrollHandler = function () {
-        let tOut;
-        return () => {
-            if (tOut) clearTimeout(tOut);
-            tOut = setTimeout(() => {
-                const slides = rebateContainer.querySelectorAll('.rebate-slide');
-                if (!slides.length) return;
-                const center = rebateContainer.scrollLeft + rebateContainer.clientWidth / 2;
-                let bestIdx = 0;
-                let bestDist = Infinity;
-                slides.forEach((s, i) => {
-                    const sCenter = s.offsetLeft + s.offsetWidth / 2;
-                    const d = Math.abs(sCenter - center);
-                    if (d < bestDist) {
-                        bestDist = d;
-                        bestIdx = i;
-                    }
-                });
-                const tabs = tabsContainer.querySelectorAll('.rebate-tab');
-                tabs.forEach(t => t.classList.remove('active'));
-                if (tabs[bestIdx]) tabs[bestIdx].classList.add('active');
-            }, 50);
-        };
-    }();
-
-    // 绑定新的滚动监听
-    rebateContainer.addEventListener('scroll', rebateContainer._tabScrollHandler);
-
-    // 默认滚到最后一个时间块
-    setTimeout(() => {
-        const lastTab = tabsContainer.querySelectorAll('.rebate-tab')[timeBlocks.length - 1];
-        if (lastTab) lastTab.click();
-    }, 120);
 }
 
-async function initXyJsButton(profitParam, dateParam) {
-    // 拼接带 profit date 的接口
-    let apiUrl = "/api/jsCode";
-    const queryParams = new URLSearchParams();
-    queryParams.set('type', "xyn");
-    if (profitParam) queryParams.set('profit', profitParam);
-    if (dateParam) queryParams.set('date', dateParam);
-    const queryString = queryParams.toString();
-    apiUrl += `?${queryString}`;
-    // 请求
-    const xynText = await fetch(apiUrl).then(r => r.text());
-
+async function initXynCopyButton(templateData, profitParam, dateParam) {
     const copyBtn = document.getElementById('xynBtn');
     if (!copyBtn) return;
 
-    // 修改原始监听器，使其同时支持两种复制
-    copyBtn.addEventListener('click', () => {
-        if (!xynText) {
-            showToast('无可用费率数据', true, 'xyn-toast');
-            return;
-        }
-        navigator.clipboard.writeText(xynText)
-            .then(() => showToast('费率脚本代码已复制到剪贴板', false, 'xyn-toast'))
-            .catch(err => {
-                showToast('复制失败，请手动复制', true, 'xyn-toast');
-                console.error('复制失败:', err);
-            });
-    });
+    if (currentXdPanelType === 'xdn') {
+        copyBtn.addEventListener('click', () => {
+            if (!templateData) {
+                showToast('无可用费率数据', true, 'xyn-toast');
+                return;
+            }
+            navigator.clipboard.writeText(templateData)
+                .then(() => showToast('费率已复制到剪贴板', false, 'xyn-toast'))
+                .catch(err => {
+                    showToast('复制失败，请手动复制', true, 'xyn-toast');
+                    console.error('复制失败:', err);
+                });
+        });
+    } else {
+        // 拼接带 profit date 的接口
+        let apiUrl = "/api/jsCode";
+        const queryParams = new URLSearchParams();
+        queryParams.set('type', "xyn");
+        if (profitParam) queryParams.set('profit', profitParam);
+        if (dateParam) queryParams.set('date', dateParam);
+        const queryString = queryParams.toString();
+        apiUrl += `?${queryString}`;
+        // 请求
+        const xynText = await fetch(apiUrl).then(r => r.text());
+
+        // 修改原始监听器，使其同时支持两种复制
+        copyBtn.addEventListener('click', () => {
+            if (!xynText) {
+                showToast('无可用费率数据', true, 'xyn-toast');
+                return;
+            }
+            navigator.clipboard.writeText(xynText)
+                .then(() => showToast('费率脚本代码已复制到剪贴板', false, 'xyn-toast'))
+                .catch(err => {
+                    showToast('复制失败，请手动复制', true, 'xyn-toast');
+                    console.error('复制失败:', err);
+                });
+        });
+    }
 }
+
 
 // ========== GBO ==========
 function renderGbo(gbo) {
@@ -921,30 +1090,41 @@ async function loadData() {
                 time,
                 rates: Object.entries(channels).map(([channel, discount]) => ({channel, discount}))
             }));
+        // 渲染新星悦数据
+        const xynTimeBlocks = Object.entries(discountData.xyn || {})
+            .map(([time, channels]) => ({
+                time,
+                rates: Object.entries(channels).map(([channel, discount]) => ({channel, discount}))
+            }));
+        // 渲染新小刀数据
+        const xdnTimeBlocks = Object.entries(discountData.xdn || {})
+            .map(([time, channels]) => ({
+                time,
+                rates: Object.entries(channels).map(([channel, discount]) => ({channel, discount}))
+            }));
         // 存储数据供切换使用
         window.discountData = {
             xdTimeBlocks,
             xyTimeBlocks,
-            xdTemplate: discountData.xd?.template
+            xdTemplate: discountData.xd?.template,
+            xdnTimeBlocks,
+            xynTimeBlocks,
+            xdnTemplate: discountData.xdn?.template
         };
         // 初始化面板切换按钮
         initXdPanelSwitch();
         // 首次渲染小刀
         currentXdPanelType = 'xd';
         renderXdCards(xdTimeBlocks);
-        initCopyRateButton(discountData.xd?.template);
-        await initCopyJsButton(profitParam, dateParam);
         renderXdTabs(xdTimeBlocks);
+        await initXdCopyButton(discountData.xd?.template, profitParam, dateParam);
 
-        // 渲染新的星悦数据
-        const xynTimeBlocks = Object.entries(discountData.xyn || {})
-            .map(([time, channels]) => ({
-                time,
-                rates: Object.entries(channels).map(([channel, discount]) => ({channel, discount}))
-            }));
+        // 初始化面板切换按钮
+        initXynPanelSwitch();
+        // 首次渲染新星悦
         renderXynCards(xynTimeBlocks);
-        await initXyJsButton(profitParam, dateParam);
-        renderXyTimeTabs(xynTimeBlocks);
+        renderXynTabs(xynTimeBlocks);
+        await initXynCopyButton(discountData.xdn?.template, profitParam, dateParam);
 
         // 渲染gbo数据
         renderGbo(discountData.gbo || {});
