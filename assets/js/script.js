@@ -176,7 +176,7 @@ function renderXdCards(timeBlocks) {
 
 // 初始化复制按钮功能
 function initCopyRateButton(templateData) {
-    const copyBtn = document.getElementById('copyBtn1');
+    const copyBtn = document.getElementById('copyBtn');
     if (!copyBtn) return;
 
     copyBtn.addEventListener('click', () => {
@@ -336,7 +336,7 @@ async function initCopyJsButton(profitParam, dateParam) {
     // 请求
     const xyText = await fetch(apiUrl).then(r => r.text());
 
-    const copyBtn = document.getElementById('copyBtn1');
+    const copyBtn = document.getElementById('copyBtn');
     if (!copyBtn) return;
 
     // 修改原始监听器，使其同时支持两种复制
@@ -596,7 +596,7 @@ async function initXyJsButton(profitParam, dateParam) {
     // 请求
     const xynText = await fetch(apiUrl).then(r => r.text());
 
-    const copyBtn = document.getElementById('copyBtn2');
+    const copyBtn = document.getElementById('xyBtn');
     if (!copyBtn) return;
 
     // 修改原始监听器，使其同时支持两种复制
@@ -776,7 +776,7 @@ function initPanelSwitch() {
         if (!e.target.matches('#switchPanelBtn')) return;
 
         const switchBtn = e.target;
-        const copyBtn = document.getElementById('copyBtn1');
+        const copyBtn = document.getElementById('copyBtn');
         const slides = panel.querySelector('.rebate-slides');
 
         if (currentPanelType === 'xd') {
