@@ -20,7 +20,7 @@ async function fetchSystemHrefs() {
 }
 
 
-// 重构：可复用的标签渲染函数（支持切换面板时更新）
+// 可复用的小刀星悦标签渲染函数（支持切换面板时更新）
 function renderXdTabs(timeBlocks) {
     const tabsContainer = document.getElementById('xd-tabs');
     if (!tabsContainer) return;
@@ -41,12 +41,10 @@ function renderXdTabs(timeBlocks) {
         tab.className = `rebate-tab ${index === timeBlocks.length - 1 ? 'active' : ''}`;
         tab.textContent = block.time;
         tab.dataset.time = block.time;
-
         tab.addEventListener('click', () => {
-            // 核心新增：记录当前点击的索引
+            // 记录当前点击的索引
             activeXdTabIndex = index;
-
-            // 👉 关键修复：获取当前面板的 slides 容器（不再硬编码）
+            // 获取当前面板的 slides 容器
             const rebateSlides = document.querySelectorAll('#xd-panel .rebate-slide');
             const rebateSlide = rebateSlides[index];
             if (rebateSlide) {
@@ -61,7 +59,6 @@ function renderXdTabs(timeBlocks) {
             tabsContainer.querySelectorAll('.rebate-tab').forEach(t => t.classList.remove('active'));
             tab.classList.add('active');
         });
-
         tabsContainer.appendChild(tab);
     });
 
@@ -124,7 +121,7 @@ function initXdPanelSwitch() {
     // 改为事件委托，监听父容器点击，避免重复绑定
     const panel = document.getElementById('xd-panel');
     panel.addEventListener('click', (e) => {
-        if (!e.target.matches('#switchPanelBtn')) return;
+        if (!e.target.matches('#switchXdPanelBtn')) return;
 
         const switchBtn = e.target;
         const copyBtn = document.getElementById('xdBtn');
@@ -240,7 +237,7 @@ function renderXdCards(timeBlocks) {
             switchContainer.id = 'switchPanelContainer';
             const switchBtn = document.createElement('button');
             switchBtn.className = 'switch-btn';
-            switchBtn.id = 'switchPanelBtn';
+            switchBtn.id = 'switchXdPanelBtn';
             switchBtn.textContent = currentXdPanelType === 'xd' ? '★ 切换为星悦' : '⭐ 切换为小刀';
             switchContainer.appendChild(switchBtn);
             timeTitle.appendChild(switchContainer); // 🔴 插入按钮
@@ -393,18 +390,20 @@ function renderXyCards(timeBlocks) {
         link.target = '_blank';
         link.textContent = '网页入口';
         // 🔴 新增切换按钮
-        const switchContainer = document.createElement('div');
-        switchContainer.className = 'switch-panel-container';
-        switchContainer.id = 'switchPanelContainer';
-        const switchBtn = document.createElement('button');
-        switchBtn.className = 'switch-btn';
-        switchBtn.id = 'switchPanelBtn';
-        switchBtn.textContent = currentXdPanelType === 'xy' ? '⭐ 切换为小刀' : '★ 切换为星悦';
-        switchContainer.appendChild(switchBtn);
+        if (index === 0) {
+            const switchContainer = document.createElement('div');
+            switchContainer.className = 'switch-panel-container';
+            switchContainer.id = 'switchPanelContainer';
+            const switchBtn = document.createElement('button');
+            switchBtn.className = 'switch-btn';
+            switchBtn.id = 'switchXdPanelBtn';
+            switchBtn.textContent = currentXdPanelType === 'xy' ? '⭐ 切换为小刀' : '★ 切换为星悦';
+            switchContainer.appendChild(switchBtn);
+            timeTitle.appendChild(switchContainer); // 🔴 插入按钮
+        }
 
         timeTitle.appendChild(titleText);
         timeTitle.appendChild(link);
-        timeTitle.appendChild(switchContainer); // 🔴 插入按钮
         slide.appendChild(timeTitle);
 
         // 渠道分组进行渲染
@@ -495,6 +494,38 @@ async function initCopyJsButton(profitParam, dateParam) {
         }
     });
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // ========== 新的星悦 ==========
 function renderXynCards(timeBlocks) {
