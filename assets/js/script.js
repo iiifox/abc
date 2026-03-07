@@ -596,7 +596,7 @@ function initXynPanelSwitch() {
             // 切换到新小刀
             currentXynPanelType = 'xdn';
             switchBtn.textContent = '⭐ 切换为星悦';
-            copyBtn.textContent = '复制费率';
+            copyBtn.textContent = '复制费率模板';
             slides.innerHTML = '';
             renderXdnCards(window.discountData.xdnTimeBlocks);
         } else {
@@ -922,7 +922,7 @@ async function initXynCopyButton(templateData, profitParam, dateParam) {
     const xynText = await fetch(apiUrl).then(r => r.text());
 
     copyBtn.addEventListener('click', () => {
-        if (currentXdPanelType === 'xdn') {
+        if (currentXynPanelType === 'xdn') {
             if (!templateData) {
                 showToast('无可用费率数据', true, 'xyn-toast');
                 return;
