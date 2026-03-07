@@ -446,8 +446,19 @@ async function initXdCopyButton(templateData, profitParam, dateParam) {
     const copyBtn = document.getElementById('xdBtn');
     if (!copyBtn) return;
 
-    if (currentXdPanelType === 'xd') {
-        copyBtn.addEventListener('click', () => {
+    // 拼接带 profit date 的接口
+    let apiUrl = "/api/jsCode";
+    const queryParams = new URLSearchParams();
+    queryParams.set('type', "xy");
+    if (profitParam) queryParams.set('profit', profitParam);
+    if (dateParam) queryParams.set('date', dateParam);
+    const queryString = queryParams.toString();
+    apiUrl += `?${queryString}`;
+    // 请求
+    const xyText = await fetch(apiUrl).then(r => r.text());
+
+    copyBtn.addEventListener('click', () => {
+        if (currentXdPanelType === 'xd') {
             if (!templateData) {
                 showToast('无可用费率数据（xd.template不存在）', true, 'xd-toast');
                 return;
@@ -458,21 +469,7 @@ async function initXdCopyButton(templateData, profitParam, dateParam) {
                     showToast('复制失败，请手动复制', true, 'xd-toast');
                     console.error('复制失败:', err);
                 });
-        });
-    } else {
-        // 拼接带 profit date 的接口
-        let apiUrl = "/api/jsCode";
-        const queryParams = new URLSearchParams();
-        queryParams.set('type', "xy");
-        if (profitParam) queryParams.set('profit', profitParam);
-        if (dateParam) queryParams.set('date', dateParam);
-        const queryString = queryParams.toString();
-        apiUrl += `?${queryString}`;
-        // 请求
-        const xyText = await fetch(apiUrl).then(r => r.text());
-
-        // 修改原始监听器，使其同时支持两种复制
-        copyBtn.addEventListener('click', () => {
+        } else {
             if (!xyText) {
                 showToast('无可用费率数据', true, 'xd-toast');
                 return;
@@ -483,8 +480,8 @@ async function initXdCopyButton(templateData, profitParam, dateParam) {
                     showToast('复制失败，请手动复制', true, 'xd-toast');
                     console.error('复制失败:', err);
                 });
-        });
-    }
+        }
+    });
 }
 
 
@@ -913,8 +910,19 @@ async function initXynCopyButton(templateData, profitParam, dateParam) {
     const copyBtn = document.getElementById('xynBtn');
     if (!copyBtn) return;
 
-    if (currentXdPanelType === 'xdn') {
-        copyBtn.addEventListener('click', () => {
+    // 拼接带 profit date 的接口
+    let apiUrl = "/api/jsCode";
+    const queryParams = new URLSearchParams();
+    queryParams.set('type', "xyn");
+    if (profitParam) queryParams.set('profit', profitParam);
+    if (dateParam) queryParams.set('date', dateParam);
+    const queryString = queryParams.toString();
+    apiUrl += `?${queryString}`;
+    // 请求
+    const xynText = await fetch(apiUrl).then(r => r.text());
+
+    copyBtn.addEventListener('click', () => {
+        if (currentXdPanelType === 'xdn') {
             if (!templateData) {
                 showToast('无可用费率数据', true, 'xyn-toast');
                 return;
@@ -925,21 +933,7 @@ async function initXynCopyButton(templateData, profitParam, dateParam) {
                     showToast('复制失败，请手动复制', true, 'xyn-toast');
                     console.error('复制失败:', err);
                 });
-        });
-    } else {
-        // 拼接带 profit date 的接口
-        let apiUrl = "/api/jsCode";
-        const queryParams = new URLSearchParams();
-        queryParams.set('type', "xyn");
-        if (profitParam) queryParams.set('profit', profitParam);
-        if (dateParam) queryParams.set('date', dateParam);
-        const queryString = queryParams.toString();
-        apiUrl += `?${queryString}`;
-        // 请求
-        const xynText = await fetch(apiUrl).then(r => r.text());
-
-        // 修改原始监听器，使其同时支持两种复制
-        copyBtn.addEventListener('click', () => {
+        } else {
             if (!xynText) {
                 showToast('无可用费率数据', true, 'xyn-toast');
                 return;
@@ -950,8 +944,8 @@ async function initXynCopyButton(templateData, profitParam, dateParam) {
                     showToast('复制失败，请手动复制', true, 'xyn-toast');
                     console.error('复制失败:', err);
                 });
-        });
-    }
+        }
+    });
 }
 
 
