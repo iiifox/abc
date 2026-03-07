@@ -798,7 +798,7 @@ function renderXdnCards(timeBlocks) {
     const groups = {
         qianbao: {
             label: '钱包点券',
-            channels: ["钱包低价", "钱包普通", "钱包加速", "钱包超速", "钱包极速", "钱包直拉", "钱包秒拉", "钱包超怪", "钱包怪额"]
+            channels: ["钱包普通", "钱包加速", "钱包超速", "钱包极速", "钱包直拉", "钱包秒拉", "钱包低价", "钱包超怪", "钱包怪额"]
         },
         weixin: {
             label: '微信点券',
