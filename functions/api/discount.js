@@ -432,11 +432,11 @@ export async function onRequest({request}) {
         }
 
         if (line.startsWith("星悦")) {
-            currentSystem = "xyn"
+            currentSystem2 = "xyn"
             continue;
         }
         if (line.startsWith("小刀")) {
-            currentSystem = "xdn"
+            currentSystem2 = "xdn"
             continue;
         }
 
