@@ -2,7 +2,8 @@
 let systemHrefs = {};
 
 // ========== 面板切换状态 ==========
-let currentPanelType = 'xd'; // 'xd' 或 'xy'
+let currentPanelType = 'xd'; // xd xy
+let currentPanelType2 = 'xyn'; // xdn xyn
 
 // ========== 时间标签选中索引（核心新增） ==========
 let activeTimeTabIndex = -1; // 记录当前选中的时间标签索引，-1=未初始化
@@ -52,20 +53,20 @@ function renderXdCards(timeBlocks) {
     };
 
     const dataTooltips = {
-        "渠道A": "100-2000整百", 
-        "渠道B": "100-2000整百", 
-        "渠道C": "100-2000整百", 
+        "渠道A": "100-2000整百",
+        "渠道B": "100-2000整百",
+        "渠道C": "100-2000整百",
         "渠道D": "100-2000整百",
-        "渠道E": "100-2000整百", 
-        "渠道F": "100-2000整百", 
-        "渠道H（低价）": "100-2000整百", 
+        "渠道E": "100-2000整百",
+        "渠道F": "100-2000整百",
+        "渠道H（低价）": "100-2000整百",
         "Z1000": "固定1000的快速通道",
-        "渠道TA": "328/348/648固定", 
-        "渠道TB": "328/348/648固定", 
-        "渠道VA": "100-2000整百", 
-        "VB微信10起": "10/20/30居多", 
-        "VC微信50": "50为主", 
-        "VD100": "100为主", 
+        "渠道TA": "328/348/648固定",
+        "渠道TB": "328/348/648固定",
+        "渠道VA": "100-2000整百",
+        "VB微信10起": "10/20/30居多",
+        "VC微信50": "50为主",
+        "VD100": "100为主",
         "VE200": "100-2000整百"
     };
 
@@ -150,7 +151,8 @@ function renderXdCards(timeBlocks) {
 
                 if (dataTooltips[channelName]) {
                     channelItem.setAttribute('data-tooltip', dataTooltips[channelName]);
-                };
+                }
+                ;
 
                 const discountSpan = document.createElement('span');
                 discountSpan.className = 'channel-discount';
@@ -220,7 +222,7 @@ function renderXyCards(timeBlocks) {
         },
         teshu: {
             label: '钱包特殊',
-            channels: [ "超怪", "怪额"]
+            channels: ["超怪", "怪额"]
         },
         weixin: {
             label: '微信点券',
@@ -385,11 +387,11 @@ function renderXynCards(timeBlocks) {
     };
 
     const dataTooltips = {
-        "微信点额": "10-99随机",
-        "微信小额": "30-99随机",
+        "微信点额": "10-99随机",
+        "微信小额": "30-99随机",
         "微信固额": "30/50/100固定",
         "微信通额": "100-1000整百",
-        "微信速额": "200-1000整百",
+        "微信速额": "200-1000整百",
         "钱包直拉": "100-2000整百",
         "微信单端": "只能挂Q币的通道",
         "扫码通额": "可以挂点券以及Q币"
@@ -475,7 +477,8 @@ function renderXynCards(timeBlocks) {
 
                 if (dataTooltips[channelName]) {
                     channelItem.setAttribute('data-tooltip', dataTooltips[channelName]);
-                };
+                }
+                ;
 
                 const discountSpan = document.createElement('span');
                 discountSpan.className = 'channel-discount';
@@ -581,6 +584,169 @@ function renderXyTimeTabs(timeBlocks) {
         const lastTab = tabsContainer.querySelectorAll('.rebate-tab')[timeBlocks.length - 1];
         if (lastTab) lastTab.click();
     }, 120);
+}
+
+function renderXdnCards(timeBlocks) {
+    if (currentPanelType2 !== 'xdn') return;
+
+    const panel = document.getElementById('xyn-panel');
+    const container = panel.querySelector('.rebate-slides');
+
+    container.innerHTML = '';
+
+    if (!timeBlocks || timeBlocks.length === 0) {
+        container.innerHTML = '<p>暂无报价</p>';
+        return;
+    }
+
+    // 渠道太多，按组分好
+    const groups = {
+        qianbao: {
+            label: '钱包整百',
+            channels: ["钱包低价", "钱包普通", "钱包加速", "钱包超速", "钱包极速", "钱包直拉", "钱包秒拉"]
+        },
+        teshu: {
+            label: '钱包特殊',
+            channels: ["钱包超怪", "钱包怪额"]
+        },
+        weixin: {
+            label: '微信点券',
+            channels: ["渠道通额", "微信速额", "微信固额", "微信小额", "微信点额"]
+        }
+    };
+
+    // 存储每个渠道上一次的折扣值
+    const lastDiscountByChannel = {};
+
+    // === 渲染 折扣slide ===
+    timeBlocks.forEach((block, index) => {
+        // 创建时间块面板
+        const slide = document.createElement('div');
+        slide.className = 'rebate-slide';
+        slide.dataset.time = block.time;
+
+        const timeTitle = document.createElement('h2');
+        timeTitle.className = 'rebate-title';
+        // 创建文本节点
+        const titleText = document.createTextNode("新小刀");
+        // 创建链接
+        const webLink = document.createElement('a');
+        webLink.href = systemHrefs.xdWeb;
+        webLink.target = '_blank';
+        webLink.textContent = '网页入口';
+        // 最新客户端下载
+        const clientLink = document.createElement("a");
+        clientLink.href = systemHrefs.xdnClient;
+        clientLink.target = '_blank';
+        clientLink.textContent = systemHrefs.xdnClient;
+        // 🔴 创建切换按钮容器并插入标题
+        if (index === 0) {
+            const switchContainer = document.createElement('div');
+            switchContainer.className = 'switch-panel-container';
+            switchContainer.id = 'switchPanelContainer';
+            const switchBtn = document.createElement('button');
+            switchBtn.className = 'switch-btn';
+            switchBtn.id = 'switchPanelBtn';
+            switchBtn.textContent = currentPanelType === 'xd' ? '⭐ 切换为新星悦' : '★ 切换为新小刀';
+            switchContainer.appendChild(switchBtn);
+            timeTitle.appendChild(switchContainer); // 🔴 插入按钮
+        }
+
+        // 组装标题
+        timeTitle.appendChild(titleText);
+        timeTitle.appendChild(webLink);
+        timeTitle.appendChild(clientLink);
+        slide.appendChild(timeTitle);
+
+        // 渠道分组进行渲染
+        Object.values(groups).forEach(groupInfo => {
+            const group = document.createElement('div');
+            group.className = 'rebate-group';
+
+            // 渠道标签
+            const channelSpan = document.createElement('span');
+            channelSpan.className = 'channel-label';
+            channelSpan.textContent = groupInfo.label;
+            group.appendChild(channelSpan);
+
+            // 渠道列表
+            const channelList = document.createElement('div');
+            channelList.className = 'channel-list';
+            // 渲染标签当中每个渠道（渠道列表）
+            groupInfo.channels.forEach(channelName => {
+                const item = block.rates.find(i => i.channel === channelName);
+                if (!item) return;
+
+                // 颜色判定（默认黑色 涨价红色 降价绿色）
+                let color = 'black';
+                if (index > 0) {
+                    const last = lastDiscountByChannel[channelName];
+                    if (last !== undefined) {
+                        if (item.discount > last) color = 'red';
+                        else if (item.discount < last) color = 'green';
+                    }
+                }
+
+                const channelItem = document.createElement('div');
+                channelItem.className = 'channel-item';
+
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'channel-name';
+                nameSpan.textContent = channelName;
+
+                const discountSpan = document.createElement('span');
+                discountSpan.className = 'channel-discount';
+                discountSpan.textContent = item.discount;
+                discountSpan.style.color = color;
+
+                channelItem.appendChild(nameSpan);
+                channelItem.appendChild(discountSpan);
+                channelList.appendChild(channelItem);
+
+                // 更新当前渠道的 last discount
+                lastDiscountByChannel[channelName] = item.discount;
+            });
+
+            group.appendChild(channelList);
+            slide.appendChild(group);
+        });
+
+        container.appendChild(slide);
+    });
+}
+
+function initPanelSwitch2() {
+    const panel = document.getElementById('xyn-panel');
+    panel.addEventListener('click', (e) => {
+        if (!e.target.matches('#switchPanelBtn2')) return;
+        const switchBtn = e.target;
+        const copyBtn = document.getElementById('xyBtn');
+        const slides = panel.querySelector('.rebate-slides');
+        if (currentPanelType2 === 'xyn') {
+            // 切换刀新小刀
+            currentPanelType2 = 'xdn';
+            switchBtn.textContent = '⭐ 切换为新星悦';
+            copyBtn.textContent = '复制费率模板';
+            slides.innerHTML = '';
+            renderXdnCards(window.discountData.xdnTimeBlocks);
+        } else {
+            // 切换刀新星悦
+            currentPanelType2 = 'xyn';
+            switchBtn.textContent = '★ 切换为新小刀';
+            copyBtn.textContent = '复制费率代码';
+            slides.innerHTML = '';
+            renderXynCards(window.discountData.xynTimeBlocks);
+        }
+        slides.scrollLeft = 0;
+        // 核心修改：根据记录的索引选中对应标签
+        const tabsContainer = document.getElementById('xy-tabs');
+        const tabs = tabsContainer.querySelectorAll('.rebate-tab');
+        // 用记录的索引，无则选最后一个
+        const targetIndex = activeTimeTabIndex >= 0 ? activeTimeTabIndex : tabs.length - 1;
+        if (tabs[targetIndex]) {
+            tabs[targetIndex].click();
+        }
+    });
 }
 
 async function initXyJsButton(profitParam, dateParam) {
@@ -886,11 +1052,26 @@ async function loadData() {
                 time,
                 rates: Object.entries(channels).map(([channel, discount]) => ({channel, discount}))
             }));
+        // 渲染新星悦数据
+        const xynTimeBlocks = Object.entries(discountData.xyn || {})
+            .map(([time, channels]) => ({
+                time,
+                rates: Object.entries(channels).map(([channel, discount]) => ({channel, discount}))
+            }));
+        // 渲染新小刀数据
+        const xdnTimeBlocks = Object.entries(discountData.xdn || {})
+            .map(([time, channels]) => ({
+                time,
+                rates: Object.entries(channels).map(([channel, discount]) => ({channel, discount}))
+            }));
         // 存储数据供切换使用
         window.discountData = {
             xdTimeBlocks,
             xyTimeBlocks,
-            xdTemplate: discountData.xd?.template
+            xdTemplate: discountData.xd?.template,
+            xdnTimeBlocks,
+            xynTimeBlocks,
+            xdnTemplate: discountData.xdn?.template
         };
         // 初始化面板切换按钮
         initPanelSwitch();
@@ -901,12 +1082,13 @@ async function loadData() {
         await initCopyJsButton(profitParam, dateParam);
         renderTimeTabs(xdTimeBlocks);
 
-        // 渲染新的星悦数据
-        const xynTimeBlocks = Object.entries(discountData.xyn || {})
-            .map(([time, channels]) => ({
-                time,
-                rates: Object.entries(channels).map(([channel, discount]) => ({channel, discount}))
-            }));
+
+
+
+        // 初始化面板切换按钮
+        initPanelSwitch2();
+        // 首次渲染新星悦
+        currentPanelType2 = 'xyn';
         renderXynCards(xynTimeBlocks);
         await initXyJsButton(profitParam, dateParam);
         renderXyTimeTabs(xynTimeBlocks);
