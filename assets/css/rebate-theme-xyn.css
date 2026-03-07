@@ -1,20 +1,20 @@
 /* 星悦额外微调 */
-#xy-panel .channel-label {
+#xyn-panel .channel-label {
     color: #3186ff;
 }
 
-#xy-panel .channel-item {
+#xyn-panel .channel-item {
     border-left: 4px solid #3186ff;
 }
 
 /* 星悦悬浮提示（仅 data-tooltip 非空时生效） */
-#xy-panel .channel-item[data-tooltip]:not([data-tooltip=""]) {
+#xyn-panel .channel-item[data-tooltip]:not([data-tooltip=""]) {
     position: relative;
     cursor: help;
 }
 
 /* 小箭头 */
-#xy-panel .channel-item[data-tooltip]:not([data-tooltip=""]):hover::before {
+#xyn-panel .channel-item[data-tooltip]:not([data-tooltip=""]):hover::before {
     content: '';
     position: absolute;
     bottom: 100%;
@@ -27,7 +27,7 @@
 }
 
 /* 提示框 */
-#xy-panel .channel-item[data-tooltip]:not([data-tooltip=""]):hover::after {
+#xyn-panel .channel-item[data-tooltip]:not([data-tooltip=""]):hover::after {
     content: attr(data-tooltip);
     position: absolute;
     bottom: 100%;
