@@ -24,7 +24,7 @@ function renderXdCards(timeBlocks) {
     // 只有当前面板是 'xd' 时才渲染
     if (currentPanelType !== 'xd') return;
 
-    const panel = document.getElementById('xd-panel');
+    const panel = document.getElementById('unified-panel');
     const container = panel.querySelector('.rebate-slides');
 
     // 清空容器
@@ -175,20 +175,20 @@ function renderXdCards(timeBlocks) {
 
 // 初始化复制按钮功能
 function initCopyRateButton(templateData) {
-    const copyBtn = document.getElementById('copyBtn1');
+    const copyBtn = document.getElementById('copyBtn');
     if (!copyBtn) return;
 
     copyBtn.addEventListener('click', () => {
         // 根据当前面板类型决定复制内容
         if (currentPanelType === 'xd') {
             if (!templateData) {
-                showToast('无可用费率数据（xd.template不存在）', true, 'xd-toast');
+                showToast('无可用费率数据（xd.template不存在）', true, 'panel-toast');
                 return;
             }
             navigator.clipboard.writeText(templateData)
-                .then(() => showToast('费率已复制到剪贴板', false, 'xd-toast'))
+                .then(() => showToast('费率已复制到剪贴板', false, 'panel-toast'))
                 .catch(err => {
-                    showToast('复制失败，请手动复制', true, 'xd-toast');
+                    showToast('复制失败，请手动复制', true, 'panel-toast');
                     console.error('复制失败:', err);
                 });
         }
@@ -201,7 +201,7 @@ function renderXyCards(timeBlocks) {
     // 只有当前面板是 'xy' 时才渲染
     if (currentPanelType !== 'xy') return;
 
-    const panel = document.getElementById('xd-panel');
+    const panel = document.getElementById('unified-panel');
     const container = panel.querySelector('.rebate-slides');
 
     // 清空容器
@@ -335,20 +335,20 @@ async function initCopyJsButton(profitParam, dateParam) {
     // 请求
     const xyText = await fetch(apiUrl).then(r => r.text());
 
-    const copyBtn = document.getElementById('copyBtn1');
+    const copyBtn = document.getElementById('copyBtn');
     if (!copyBtn) return;
 
     // 修改原始监听器，使其同时支持两种复制
     copyBtn.addEventListener('click', () => {
         if (currentPanelType === 'xy') {
             if (!xyText) {
-                showToast('无可用费率数据', true, 'xd-toast');
+                showToast('无可用费率数据', true, 'panel-toast');
                 return;
             }
             navigator.clipboard.writeText(xyText)
-                .then(() => showToast('费率脚本代码已复制到剪贴板', false, 'xd-toast'))
+                .then(() => showToast('费率脚本代码已复制到剪贴板', false, 'panel-toast'))
                 .catch(err => {
-                    showToast('复制失败，请手动复制', true, 'xd-toast');
+                    showToast('复制失败，请手动复制', true, 'panel-toast');
                     console.error('复制失败:', err);
                 });
         }
@@ -695,10 +695,10 @@ function renderTimeTabs(timeBlocks) {
             activeTimeTabIndex = index;
 
             // 👉 关键修复：获取当前面板的 slides 容器（不再硬编码）
-            const rebateSlides = document.querySelectorAll('#xd-panel .rebate-slide');
+            const rebateSlides = document.querySelectorAll('#unified-panel .rebate-slide');
             const rebateSlide = rebateSlides[index];
             if (rebateSlide) {
-                const rebateContainer = document.querySelector('#xd-panel .rebate-slides');
+                const rebateContainer = document.querySelector('#unified-panel .rebate-slides');
                 if (rebateContainer) rebateContainer.scrollTo({
                     left: rebateSlide.offsetLeft,
                     behavior: 'smooth'
@@ -714,7 +714,7 @@ function renderTimeTabs(timeBlocks) {
     });
 
     // 重新绑定滚动监听（先移除旧监听，避免重复）
-    const rebateContainer = document.querySelector('#xd-panel .rebate-slides');
+    const rebateContainer = document.querySelector('#unified-panel .rebate-slides');
     // 移除旧监听（通过命名函数实现）
     if (rebateContainer._tabScrollHandler) {
         rebateContainer.removeEventListener('scroll', rebateContainer._tabScrollHandler);
@@ -770,12 +770,12 @@ function renderTimeTabs(timeBlocks) {
 
 function initPanelSwitch() {
     // 改为事件委托，监听父容器点击，避免重复绑定
-    const panel = document.getElementById('xd-panel');
+    const panel = document.getElementById('unified-panel');
     panel.addEventListener('click', (e) => {
         if (!e.target.matches('#switchPanelBtn')) return;
 
         const switchBtn = e.target;
-        const copyBtn = document.getElementById('copyBtn1');
+        const copyBtn = document.getElementById('copyBtn');
         const slides = panel.querySelector('.rebate-slides');
 
         if (currentPanelType === 'xd') {
