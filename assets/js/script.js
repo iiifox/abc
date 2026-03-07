@@ -140,7 +140,7 @@ function initXdPanelSwitch() {
             // 切换到小刀
             currentXdPanelType = 'xd';
             switchBtn.textContent = '★ 切换为星悦';
-            copyBtn.textContent = '复制费率';
+            copyBtn.textContent = '复制费率模板';
             slides.innerHTML = '';
             renderXdCards(window.discountData.xdTimeBlocks);
         }
@@ -290,7 +290,6 @@ function renderXdCards(timeBlocks) {
                 if (dataTooltips[channelName]) {
                     channelItem.setAttribute('data-tooltip', dataTooltips[channelName]);
                 }
-                ;
 
                 const discountSpan = document.createElement('span');
                 discountSpan.className = 'channel-discount';
