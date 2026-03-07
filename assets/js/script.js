@@ -357,7 +357,7 @@ async function initCopyJsButton(profitParam, dateParam) {
 
 // ========== 新的星悦 ==========
 function renderXynCards(timeBlocks) {
-    const panel = document.getElementById('xy-panel');
+    const panel = document.getElementById('xyn-panel');
     const container = panel.querySelector('.rebate-slides');
 
     // 清空容器
@@ -522,10 +522,10 @@ function renderXyTimeTabs(timeBlocks) {
 
         tab.addEventListener('click', () => {
             // 👉 关键修复：获取当前面板的 slides 容器（不再硬编码）
-            const rebateSlides = document.querySelectorAll('#xy-panel .rebate-slide');
+            const rebateSlides = document.querySelectorAll('#xyn-panel .rebate-slide');
             const rebateSlide = rebateSlides[index];
             if (rebateSlide) {
-                const rebateContainer = document.querySelector('#xy-panel .rebate-slides');
+                const rebateContainer = document.querySelector('#xyn-panel .rebate-slides');
                 if (rebateContainer) rebateContainer.scrollTo({
                     left: rebateSlide.offsetLeft,
                     behavior: 'smooth'
@@ -541,7 +541,7 @@ function renderXyTimeTabs(timeBlocks) {
     });
 
     // 重新绑定滚动监听（先移除旧监听，避免重复）
-    const rebateContainer = document.querySelector('#xy-panel .rebate-slides');
+    const rebateContainer = document.querySelector('#xyn-panel .rebate-slides');
     // 移除旧监听（通过命名函数实现）
     if (rebateContainer._tabScrollHandler) {
         rebateContainer.removeEventListener('scroll', rebateContainer._tabScrollHandler);
@@ -595,19 +595,19 @@ async function initXyJsButton(profitParam, dateParam) {
     // 请求
     const xynText = await fetch(apiUrl).then(r => r.text());
 
-    const copyBtn = document.getElementById('xyBtn');
+    const copyBtn = document.getElementById('xynBtn');
     if (!copyBtn) return;
 
     // 修改原始监听器，使其同时支持两种复制
     copyBtn.addEventListener('click', () => {
         if (!xynText) {
-            showToast('无可用费率数据', true, 'xy-toast');
+            showToast('无可用费率数据', true, 'xyn-toast');
             return;
         }
         navigator.clipboard.writeText(xynText)
-            .then(() => showToast('费率脚本代码已复制到剪贴板', false, 'xy-toast'))
+            .then(() => showToast('费率脚本代码已复制到剪贴板', false, 'xyn-toast'))
             .catch(err => {
-                showToast('复制失败，请手动复制', true, 'xy-toast');
+                showToast('复制失败，请手动复制', true, 'xyn-toast');
                 console.error('复制失败:', err);
             });
     });
