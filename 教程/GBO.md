@@ -11,11 +11,6 @@ title: GBO系统教程
 
 **进入登录页面**
 
-首页网址
-```
-http://hxmm.vdvg82xr.top/main.html
-```
-
 ![](../assets/img/gbo1.png)
 
 设置答题都不见了；电脑点那两个地方没反应；www.baidu.com 拒绝连接。等所有情况，都只需要调出开发者工具（Ctrl+Shift+I或F12），点开Console(控制面板)，输入以下代码后回车即可
@@ -55,7 +50,7 @@ showLogin()
 该系统有点抽风，长时间不拉单或者多次不支付都可能被自动停用，因此特地编写一个脚本（每3分钟自动检测一轮），可以自动启用那些没到限额限笔就被异常关闭的的账号id，脚本url如下：
 
 ```
-https://luei.me/assets/script/gbo/enableGbo.js
+https://api.luei.me/script/gboAutoEnable.js
 ```
 
 你只需要使用[篡改猴](https://www.tampermonkey.net/)：**管理面板——实用工具——从URL导入**，输入上面的url地址即可。
