@@ -12,7 +12,7 @@
     top: 50%;
     right: 0;
     transform: translateY(-50%); /* 垂直居中 */
-    z-index: 11;
+    z-index: 5;
     display: flex;
     align-items: center;
     justify-content: center;
