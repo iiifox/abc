@@ -18,20 +18,20 @@
 #xd-panel .channel-item[data-tooltip]:not([data-tooltip=""]):hover::before {
     content: '';
     position: absolute;
-    top: 100%;
+    bottom: 100%;
     left: 50%;
     transform: translateX(-50%);
     border-width: 8px;
     border-style: solid;
-    border-color: transparent transparent rgba(60, 141, 188, 0.95) transparent;
-    margin-top: -8px;
+    border-color: rgba(60, 141, 188, 0.95) transparent transparent transparent;
+    margin-bottom: -8px;
 }
 
 /* 提示框 */
 #xd-panel .channel-item[data-tooltip]:not([data-tooltip=""]):hover::after {
     content: attr(data-tooltip);
     position: absolute;
-    top: 100%;
+    bottom: 100%;
     left: 50%;
     transform: translateX(-50%);
     background: rgba(60, 141, 188, 0.95);
@@ -46,6 +46,6 @@
     max-width: 220px;
     z-index: 999;
     pointer-events: none;
-    margin-top: 10px;
+    margin-bottom: 10px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
