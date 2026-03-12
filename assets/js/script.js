@@ -246,7 +246,7 @@ function initPanelSwitch({
     });
 }
 
-function renderCards({panelId, panelTypeKey, panelTypeValue, timeBlocks, groups}) {
+function renderCards({panelId, panelTypeKey, panelTypeValue, timeBlocks, groups, tooltips = {}}) {
     if (state[panelTypeKey] !== panelTypeValue) return;
     const panel = document.getElementById(panelId);
     const container = panel.querySelector('.rebate-slides');
@@ -304,6 +304,9 @@ function renderCards({panelId, panelTypeKey, panelTypeValue, timeBlocks, groups}
                 const name = document.createElement('span');
                 name.className = 'channel-name';
                 name.textContent = channelName;
+                if (tooltips[channelName]) {
+                    row.setAttribute('data-tooltip', tooltips[channelName]);
+                }
                 const dis = document.createElement('span');
                 dis.className = 'channel-discount';
                 dis.textContent = item.discount;
@@ -406,7 +409,24 @@ function renderXdCards(timeBlocks) {
         panelTypeKey: "currentXdPanelType",
         panelTypeValue: "xd",
         timeBlocks,
-        groups
+        groups,
+        tooltips: {
+            "渠道A": "100-2000整百",
+            "渠道B": "100-2000整百",
+            "渠道C": "100-2000整百",
+            "渠道D": "100-2000整百",
+            "渠道E": "100-2000整百",
+            "渠道F": "100-2000整百",
+            "渠道H（低价）": "100-2000整百",
+            "Z1000": "固定1000的快速通道",
+            "渠道TA": "328/348/648固定",
+            "渠道TB": "328/348/648固定",
+            "渠道VA": "100-2000整百",
+            "VB微信10起": "10/20/30居多",
+            "VC微信50": "50为主",
+            "VD100": "100为主",
+            "VE200": "100-2000整百"
+        }
     });
 }
 
@@ -499,7 +519,17 @@ function renderXynCards(timeBlocks) {
         panelTypeKey: "currentXynPanelType",
         panelTypeValue: "xyn",
         timeBlocks,
-        groups
+        groups,
+        tooltips: {
+            "微信点额": "10-99随机",
+            "微信小额": "30-99随机",
+            "微信固额": "30/50/100固定",
+            "微信通额": "100-1000整百",
+            "微信速额": "200-1000整百",
+            "钱包直拉": "100-2000整百",
+            "微信单端": "只能挂Q币的通道",
+            "扫码通额": "可以挂点券以及Q币"
+        }
     });
 }
 
