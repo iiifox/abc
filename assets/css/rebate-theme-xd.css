@@ -14,6 +14,11 @@
     cursor: help;
 }
 
+/* hover 时提高层级 */
+#xd-panel .channel-item:hover {
+    z-index: 1000;
+}
+
 /* 小箭头 */
 #xd-panel .channel-item[data-tooltip]:not([data-tooltip=""]):hover::before {
     content: '';
