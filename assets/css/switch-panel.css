@@ -50,3 +50,18 @@
 .rebate-title {
     padding-right: 180px; /* 按钮宽度+间距，根据实际调整 */
 }
+
+
+
+
+
+#globalTooltipContainer .tooltip {
+    position: absolute;
+    background: rgba(0,0,0,0.8);
+    color: #fff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: pre;
+    pointer-events: none;
+}
