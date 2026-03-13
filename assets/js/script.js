@@ -571,7 +571,12 @@ function renderXdnCards(timeBlocks) {
         panelTypeKey: "currentXynPanelType",
         panelTypeValue: "xdn",
         timeBlocks,
-        groups
+        groups,
+        tooltips: {
+            "微信通额": "100-1000整百",
+            "微信大额": "300/500/1000/1500/2000",
+            "微信速额": "200-1000整百"
+        }
     });
 }
 
