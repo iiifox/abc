@@ -66,3 +66,10 @@
     
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
+
+#xd-panel .channel-item.tooltip-up:hover::after {
+    top: auto;
+    bottom: 100%;
+    margin-top: 0;
+    margin-bottom: 10px;
+}
