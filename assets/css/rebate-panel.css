@@ -2,9 +2,7 @@
 .rebate-panel {
     /* 给按钮提供参考点 */
     position: relative;
-    /* overflow: hidden; */
-    overflow-x: hidden;
-    overflow-y: visible;
+    overflow: hidden;
     padding-bottom: 30px;
 }
 
