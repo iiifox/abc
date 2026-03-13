@@ -176,7 +176,13 @@ function renderPanelTitle(panelId, switchId, btnId, titleText, links = [], state
         title.appendChild(titleSpan);
         title.appendChild(switchContainer);
 
-        panel.insertBefore(title, panel.firstChild);
+        // panel.insertBefore(title, panel.firstChild);
+        const tabsContainer = panel.querySelector('.rebate-tabs');
+        if (tabsContainer) {
+            panel.insertBefore(title, tabsContainer.nextSibling); // 放在tabs后面
+        } else {
+            panel.insertBefore(title, panel.firstChild); // 保底
+        }
     }
 
     // 更新标题
