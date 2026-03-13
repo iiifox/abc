@@ -785,18 +785,6 @@ async function loadData() {
 
         // 渲染gbo数据
         renderGbo(discountData.gbo || {});
-
-        document.addEventListener("mouseover", function(e){
-            const item = e.target.closest(".channel-item[data-tooltip]");
-            if(!item) return;
-            const rect = item.getBoundingClientRect();
-            const spaceBelow = window.innerHeight - rect.bottom;
-            if(spaceBelow < 220){
-                item.classList.add("tooltip-up");
-            }else{
-                item.classList.remove("tooltip-up");
-            } 
-        });
     } catch (error) {
         showError('数据加载失败: ' + error.message);
     }
