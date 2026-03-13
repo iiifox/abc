@@ -785,59 +785,6 @@ async function loadData() {
 
         // 渲染gbo数据
         renderGbo(discountData.gbo || {});
-
-        // ------------------- 顶层 Tooltip -------------------
-        (function() {
-            // 创建顶层 tooltip 容器
-            const tooltipEl = document.createElement('div');
-            tooltipEl.id = 'topTooltip';
-            tooltipEl.style.position = 'fixed';
-            tooltipEl.style.pointerEvents = 'none';
-            tooltipEl.style.background = 'rgba(0,0,0,0.8)';
-            tooltipEl.style.color = '#fff';
-            tooltipEl.style.padding = '4px 8px';
-            tooltipEl.style.borderRadius = '4px';
-            tooltipEl.style.fontSize = '12px';
-            tooltipEl.style.whiteSpace = 'pre-line'; // 支持 \n 换行
-            tooltipEl.style.zIndex = '9999';
-            tooltipEl.style.display = 'none';
-            tooltipEl.style.maxWidth = '300px';
-            tooltipEl.style.wordBreak = 'break-word';
-            document.body.appendChild(tooltipEl);
-        
-            // 显示 tooltip
-            function showTooltip(content, x, y) {
-                tooltipEl.textContent = content;
-                const offset = 12;
-                tooltipEl.style.left = x + offset + 'px';
-                tooltipEl.style.top = y + offset + 'px';
-                tooltipEl.style.display = 'block';
-            }
-        
-            // 隐藏 tooltip
-            function hideTooltip() {
-                tooltipEl.style.display = 'none';
-            }
-        
-            // 只针对 rebate-panel 内的 channel-item[data-tooltip]，不影响 GBO
-            document.querySelectorAll('.rebate-panel').forEach(panel => {
-                panel.addEventListener('mouseenter', e => {
-                    const target = e.target.closest('.channel-item[data-tooltip]');
-                    if (!target) return;
-                    const content = target.getAttribute('data-tooltip');
-                    if (!content) return;
-        
-                    const moveHandler = evt => showTooltip(content, evt.clientX, evt.clientY);
-                    showTooltip(content, e.clientX, e.clientY);
-                    target.addEventListener('mousemove', moveHandler);
-        
-                    target.addEventListener('mouseleave', () => {
-                        hideTooltip();
-                        target.removeEventListener('mousemove', moveHandler);
-                    }, { once: true });
-                }, true);
-            });
-        })();
     } catch (error) {
         showError('数据加载失败: ' + error.message);
     }
