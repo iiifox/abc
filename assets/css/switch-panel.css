@@ -50,3 +50,61 @@
 .rebate-title {
     padding-right: 180px; /* 按钮宽度+间距，根据实际调整 */
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* 确保 rebate-slide 不裁剪 tooltip，但仍可滚动 */
+.rebate-panel .rebate-slides {
+    overflow-x: auto;  /* 保持滚动 */
+    overflow-y: visible; /* 允许垂直溢出显示 tooltip */
+    position: relative;  /* 保证绝对定位生效 */
+}
+
+/* tooltip 样式 */
+.channel-item[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute; /* 相对 .channel-item 定位 */
+    top: -9999px;  /* 先隐藏 */
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: pre-line;
+    padding: 4px 8px;
+    background: rgba(0,0,0,0.8);
+    color: #fff;
+    border-radius: 4px;
+    font-size: 12px;
+    pointer-events: none;
+    z-index: 9999;  /* 高于标题 */
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+
+/* hover 显示 tooltip */
+.channel-item[data-tooltip]:hover::after {
+    top: -1.5em; /* 提到元素上方 */
+    opacity: 1;
+}
+
+/* rebate-title 保持正常层级，不遮挡 */
+.rebate-title {
+    position: relative;
+    z-index: 1;
+}
