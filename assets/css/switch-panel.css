@@ -50,3 +50,73 @@
 .rebate-title {
     padding-right: 180px; /* 按钮宽度+间距，根据实际调整 */
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.rebate-panel,
+.rebate-slides,
+.rebate-slide {
+    overflow: visible !important;
+    position: relative; /* 保证绝对定位生效 */
+}
+
+.channel-item[data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    top: -32px; /* 让 tooltip 出现在 item 上方 */
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.85);
+    color: #fff;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 9999; /* 必须比 .rebate-title 高 */
+    pointer-events: none;
+}
+
+.rebate-title {
+    position: relative; /* 保证 z-index 生效 */
+    z-index: 1; /* 小于 tooltip */
+}
