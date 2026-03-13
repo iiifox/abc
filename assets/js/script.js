@@ -11,7 +11,6 @@ const state = {
 
 const panelStateConfigs = {
     xd: {
-        tabsId: 'xd-tabs',
         panelId: 'xd-panel',
         switchBtnId: 'switchXdPanelBtn',
         copyBtnId: 'xdBtn',
@@ -22,7 +21,6 @@ const panelStateConfigs = {
         typeB: 'xy'
     },
     xyn: {
-        tabsId: 'xyn-tabs',
         panelId: 'xyn-panel',
         switchBtnId: 'switchXynPanelBtn',
         copyBtnId: 'xynBtn',
@@ -48,9 +46,12 @@ async function fetchSystemHrefs() {
 }
 
 // 可复用的标签渲染函数（支持切换面板时更新）
-function renderTabs({panelId, tabsId, activeIndexKey, timeBlocks}) {
+function renderTabs({panelId, activeIndexKey, timeBlocks}) {
     // 通过id获取时间标签容器
-    const tabsContainer = document.getElementById(tabsId);
+    const panel = document.getElementById(panelId);
+    if (!panel) return;
+    // 查找 panel 内的 .rebate-tabs 容器
+    const tabsContainer = panel.querySelector('.rebate-tabs');
     if (!tabsContainer) return;
     // 清空旧内容
     tabsContainer.innerHTML = '';
@@ -212,7 +213,6 @@ function initPanelSwitch({
                              panelId,
                              switchBtnId,
                              panelTypeKey,
-                             tabsId,
                              activeIndexKey,
                              typeA,
                              typeB,
@@ -243,7 +243,7 @@ function initPanelSwitch({
 
         slides.scrollLeft = 0;
         // 根据记录的索引选中对应标签
-        const tabsContainer = document.getElementById(tabsId);
+        const tabsContainer = panel.querySelector('.rebate-tabs');
         if (tabsContainer) {
             const tabs = tabsContainer.querySelectorAll('.rebate-tab');
             const targetIndex = state[activeIndexKey] >= 0 ? state[activeIndexKey] : tabs.length - 1;
