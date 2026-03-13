@@ -30,16 +30,6 @@
   flex-wrap: nowrap; /* 防止换行 */
 }
 
-.rebate-title{
-    position: relative;
-    z-index: 1;
-}
-
-.rebate-slide{
-    position: relative;
-    z-index: 2;
-}
-
 .rebate-title a {
   font-size: 14px;
   color: #3498db;
