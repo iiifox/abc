@@ -25,6 +25,13 @@
     border-color: rgba(49, 134, 255, 0.95) transparent transparent transparent;
     margin-bottom: -8px;
 }
+#xyn-panel .rebate-group:first-of-type .channel-item[data-tooltip]:hover::before{
+    top: 100%;
+    bottom: auto;
+    margin-top: -8px;
+    margin-bottom: 0;
+    border-color: transparent transparent rgba(49, 134, 255, 0.95) transparent;
+}
 
 /* 提示框 */
 #xyn-panel .channel-item[data-tooltip]:not([data-tooltip=""]):hover::after {
@@ -47,4 +54,10 @@
     pointer-events: none;
     margin-bottom: 10px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+#xyn-panel .rebate-group:first-of-type .channel-item[data-tooltip]:hover::after{
+    top: 100%;
+    bottom: auto;
+    margin-top: 10px;
+    margin-bottom: 0;
 }
