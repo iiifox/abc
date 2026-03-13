@@ -101,11 +101,7 @@
 }
 
 .channel-item[data-tooltip]:hover::after {
-    top: -32px; /* 让 tooltip 出现在 item 上方 */
-    left: 50%;
-    white-space: nowrap;
     z-index: 9999; /* 必须比 .rebate-title 高 */
-    pointer-events: none;
 }
 
 .rebate-title {
