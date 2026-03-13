@@ -14,7 +14,7 @@
 }
 
 /* hover 时提高层级 */
-#xd-panel .channel-item:hover {
+#xyn-panel .channel-item:hover {
     z-index: 1000;
 }
 
