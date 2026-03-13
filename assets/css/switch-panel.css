@@ -50,10 +50,3 @@
 .rebate-title {
     padding-right: 180px; /* 按钮宽度+间距，根据实际调整 */
 }
-
-
-.channel-item[data-tooltip]::after {
-    position: fixed; /* 代替 absolute */
-    z-index: 9999;
-    pointer-events: none;
-}
