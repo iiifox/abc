@@ -504,9 +504,9 @@ function renderXynCards(timeBlocks) {
         "新星悦",
         [
             {href: state.systemHrefs.xyWeb, text: "网页入口"},
-            {href: state.systemHrefs.xyClient, text: "Win版客户端"},
-            {href: state.systemHrefs.xyChajian, text: "产码插件"},
-            {href: state.systemHrefs.xyZhuabao, text: "抓包工具"}
+            {href: state.systemHrefs.xyWeb + state.systemHrefs.xyClient, text: "Win版客户端"},
+            {href: state.systemHrefs.xyWeb + state.systemHrefs.xyChajian, text: "产码插件"},
+            {href: state.systemHrefs.xyWeb + state.systemHrefs.xyZhuabao, text: "抓包工具"}
         ],
         "currentXynPanelType",
         {
