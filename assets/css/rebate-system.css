@@ -92,7 +92,8 @@
 }
 
 .rebate-system .channel-item:hover {
-    transform: translateX(5px);
+    /* transform: translateX(5px); */
+    margin-left: 5px;
 }
 
 .channel-item .channel-name {
