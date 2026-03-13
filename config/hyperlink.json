@@ -3,9 +3,9 @@
   "xdClient": "http://157.254.32.30/a3/3.4.3.zip",
   
   "xyWeb": "https://mgr.udn1ys.com",
-  "xyClient": "https://sdk.wy7l9.com/downloads/win-1.4.9.zip",
-  "xyChajian": "https://sdk.wy7l9.com/downloads/prefab-1.2.0.js",
-  "xyZhuabao": "https://sdk.wy7l9.com/downloads/zhuabao.zip",
+  "xyClient": "/downloads/win-1.4.9.zip",
+  "xyChajian": "/downloads/prefab-1.2.0.js",
+  "xyZhuabao": "/downloads/zhuabao.zip",
   
   "xdnWeb": "https://rl5.a9tq1m7z5p.top/admin",
   "xdnClient": "http://157.254.32.30/zyuan/3.4.3.zip"
