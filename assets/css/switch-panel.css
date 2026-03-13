@@ -100,8 +100,10 @@
     position: relative; /* 保证绝对定位生效 */
 }
 
-.channel-item[data-tooltip]:hover::after {
-    z-index: 9999; /* 必须比 .rebate-title 高 */
+.channel-item[data-tooltip]::after {
+    position: fixed; /* 代替 absolute */
+    z-index: 9999;
+    pointer-events: none;
 }
 
 .rebate-title {
